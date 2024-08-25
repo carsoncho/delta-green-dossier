@@ -7,6 +7,7 @@ export default function ProfessionSelector() {
   const { agent, setAgent } = useAgentContext();
   const [professions, setProfessions] = useState<IProfession[]>([]);
   const [activeProfession, setActiveProfession] = useState("");
+  const [searchFilter, setSearchFilter] = useState("");
 
   const fetchProfessions = async () => {
     const res = await fetch(`/api/professions`);
@@ -22,13 +23,15 @@ export default function ProfessionSelector() {
 
   if (!professions) return null;
 
-  const professionsOptionList = professions.map((profession: IProfession) => (
-    <option key={profession._id.toString()} value={profession._id.toString()}>
-      {profession.name}
-    </option>
-  ));
+  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchFilter(event.target.value);
+  };
 
-  const professionItems = professions.map((profession: IProfession) => (
+  const filteredProfessions = professions.filter((profession) =>
+    profession.name.toLowerCase().includes(searchFilter.toLowerCase())
+  );
+
+  const professionItems = filteredProfessions.map((profession: IProfession) => (
     <ProfessionItem
       className={""}
       key={profession._id.toString()}
@@ -40,6 +43,13 @@ export default function ProfessionSelector() {
 
   return (
     <div className="professions-selector w-full">
+      <input
+        type="text"
+        value={searchFilter}
+        onChange={handleFilterChange}
+        placeholder="Filter professions"
+        className="mb-4 p-2 border rounded w-full text-black"
+      />
       <div className="professions-list">{professionItems}</div>
     </div>
   );

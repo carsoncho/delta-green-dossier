@@ -61,7 +61,7 @@ export default function ProfessionItem(props: {
             ""
           )}
           <p>
-            <strong>Rule: {props.profession.ruleUpdated?.text}</strong>
+            <strong>Rule: {props.profession.rule?.text}</strong>
           </p>
           <p>
             <strong>Additional Skills:</strong>
@@ -71,6 +71,7 @@ export default function ProfessionItem(props: {
           ) : (
             ""
           )}
+          <button>Confirm Profession</button>
         </div>
       ) : (
         ""
