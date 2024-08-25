@@ -1,0 +1,26 @@
+.wrapper {
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 5px 5px 20px 7px rgba(168, 168, 168, 1);
+}
+
+.carousel-container {
+  display: flex;
+  transition: transform 0.4s ease;
+}
+
+.carousel-container.sliding {
+  transition: none;
+}
+
+.carousel-container.sliding.next {
+  transform: translateX(100%);
+}
+
+.carousel-container.sliding.prev {
+  transform: translateX(-100%);
+}
+
+.carousel-slot {
+  flex: 1 0 100%;
+}
