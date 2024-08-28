@@ -28,8 +28,6 @@ export default function Page(props: IAgentParams) {
 
   if (!agent || Object.keys(agent).length === 0) return <p>Waiting...</p>;
 
-  console.log(agent);
-
   if (!agent.hasCompletedCreation) {
     return (
       <div className="prose prose-white">

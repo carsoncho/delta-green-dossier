@@ -52,7 +52,7 @@ export interface IAgent {
   weapons?: string[];
   personalNotes?: string;
   homeDevelopments?: string;
-  skills: Skill; // Dynamic skills with defined keys
+  skills: Skill[]; // Dynamic skills with defined keys
   hasCompletedCreation: boolean;
   statGenerationMode: Mode;
 }

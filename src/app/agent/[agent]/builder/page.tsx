@@ -51,7 +51,6 @@ export default function Page(props: IAgentParams) {
     });
   };
 
-  const manualStats: React.ReactNode[] = [];
   const renderStep = (agent: IAgent) => {
     switch (formStep) {
       case 1:

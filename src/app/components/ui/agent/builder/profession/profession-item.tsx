@@ -4,25 +4,24 @@ import { Dispatch, SetStateAction, useState } from "react";
 
 export default function ProfessionItem(props: {
   profession: IProfession;
-  isOpen: boolean;
   className: string;
-  setActiveProfession: (id: string) => void;
+  setActiveProfession: (profession: IProfession) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(props.isOpen);
+  const [isOpen, setIsOpen] = useState(false);
 
   const skillsList = Object.entries(props.profession.professionalSkills).map(
-    ([skill, value]) => (
-      <li key={skill}>
-        {skill}: {value as number}
+    ([index, skill]) => (
+      <li key={index}>
+        {skill.name}: {skill.value as number}
       </li>
     )
   );
 
   const additionalSkills = props.profession.additionalSkills
     ? Object.entries(props.profession.additionalSkills).map(
-        ([skill, value]) => (
-          <li key={skill}>
-            {skill}: {value as number}
+        ([index, skill]) => (
+          <li key={index}>
+            {skill.name}: {skill.value as number}
           </li>
         )
       )
@@ -33,8 +32,11 @@ export default function ProfessionItem(props: {
   );
 
   const handleClick = () => {
-    props.setActiveProfession(props.profession._id.toString());
     setIsOpen(!isOpen);
+  };
+
+  const handleConfirmProfession = () => {
+    props.setActiveProfession(props.profession);
   };
 
   return (
@@ -71,7 +73,7 @@ export default function ProfessionItem(props: {
           ) : (
             ""
           )}
-          <button>Confirm Profession</button>
+          <button onClick={handleConfirmProfession}>Confirm Profession</button>
         </div>
       ) : (
         ""

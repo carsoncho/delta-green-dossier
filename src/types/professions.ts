@@ -12,8 +12,8 @@ export interface IProfession {
   name: string;
   description: string;
   recommendedStats: string;
-  professionalSkills: Skill;
-  additionalSkills: Skill;
+  professionalSkills: Skill[];
+  additionalSkills: Skill[];
   bonds: number;
   rule?: Rule;
 }
