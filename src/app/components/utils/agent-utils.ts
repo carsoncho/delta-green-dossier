@@ -239,3 +239,35 @@ export const AgentStats: Record<AttributeKey, string> = {
   pow: "Power",
   cha: "Charisma",
 };
+
+// Helper function to check if all stats are filled
+export function AreStatsFilled(agent: IAgent) {
+  if (agent.statGenerationMode === "point_buy") {
+    const totalPoints = GetTotalPoints(agent);
+    return totalPoints === 72;
+  } else if (agent.statGenerationMode === "manual") {
+    return (
+      agent.stats?.str !== undefined &&
+      agent.stats?.con !== undefined &&
+      agent.stats?.dex !== undefined &&
+      agent.stats?.int !== undefined &&
+      agent.stats?.pow !== undefined &&
+      agent.stats?.cha !== undefined
+    );
+  }
+  return false;
+}
+
+/**
+ * Helper to determine total points for agent.
+ * @param agent
+ * @returns
+ *   The total score of all agent stats.
+ */
+export function GetTotalPoints(agent: IAgent) {
+  if (!agent.stats) return 0;
+
+  return Object.values(agent.stats).reduce((acc, value) => {
+    return acc + (value || 0); // Add value if it exists, otherwise add 0
+  }, 0);
+}

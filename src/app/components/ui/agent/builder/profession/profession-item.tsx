@@ -1,6 +1,7 @@
 "use client";
 import { IProfession } from "@/types/professions";
 import { Dispatch, SetStateAction, useState } from "react";
+import { Button } from "../../../button";
 
 export default function ProfessionItem(props: {
   profession: IProfession;
@@ -73,7 +74,7 @@ export default function ProfessionItem(props: {
           ) : (
             ""
           )}
-          <button onClick={handleConfirmProfession}>Confirm Profession</button>
+          <Button onClick={handleConfirmProfession}>Confirm Profession</Button>
         </div>
       ) : (
         ""

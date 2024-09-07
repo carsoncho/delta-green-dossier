@@ -1,48 +1,67 @@
-import { AttributeKey } from "@/app/components/utils/agent-utils";
-import { IAgent, IStats } from "@/types/agent";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  AgentStats,
+  AreStatsFilled,
+  AttributeKey,
+  GetTotalPoints,
+} from "@/app/components/utils/agent-utils";
+import { IAgent, IStats, Mode } from "@/types/agent";
 import PointsBuySelect from "./points-buy-select";
 import { useAgentContext } from "@/context/agent-context";
 
-// @TODO: Get  PointsBuySelect to read from agent.stats for value.
 export default function PointsBuy() {
   const { agent, setAgent } = useAgentContext();
+  const previousModeRef = useRef<Mode>("");
 
   const maxPoints = 72;
-  // Start with 12 points initially since the default is 60.
   const [points, setPoints] = useState(12);
 
   useEffect(() => {
-    // Ensure that agent.stats is initialized
-    if (!agent?.stats) {
-      setAgent((prevAgent) => {
-        const stats = {
-          str: 10,
-          con: 10,
-          dex: 10,
-          int: 10,
-          pow: 10,
-          cha: 10,
-        } as IStats;
-        const updatedAgent = prevAgent || ({} as IAgent);
-        return { ...updatedAgent, stats: stats };
-      });
-    } else {
-      let totalPoints = 0;
-      Object.keys(agent.stats).forEach((stat) => {
-        const key = stat as AttributeKey;
-        totalPoints += agent.stats[key]!;
-      });
+    const previousMode = previousModeRef.current;
+    const currentMode = agent?.statGenerationMode;
+
+    if (currentMode !== previousMode && currentMode === "point_buy") {
+      if (AreStatsFilled(agent)) {
+        // @todo: handle logic here for if points aded in manual exceed 72
+        setPoints(maxPoints - GetTotalPoints(agent));
+      } else {
+        // Reset stats when switching to Point Buy mode
+        setAgent((prevAgent) => {
+          const stats: IStats = {
+            str: 10,
+            con: 10,
+            dex: 10,
+            int: 10,
+            pow: 10,
+            cha: 10,
+          };
+          const updatedAgent = prevAgent || ({} as IAgent);
+          return { ...updatedAgent, stats: stats };
+        });
+      }
+      setPoints(12); // Reset points to initial value
+    } else if (currentMode === "point_buy") {
+      const totalPoints = parseInt(GetTotalPoints(agent));
       setPoints(maxPoints - totalPoints);
+    } else if (AreStatsFilled(agent)) {
+      setPoints(maxPoints - GetTotalPoints(agent));
+    } else {
+      setPoints(12);
     }
+
+    // Update the previous mode reference at the end of the effect
+    previousModeRef.current = currentMode ?? "";
   }, [agent, setAgent]);
 
-  // Event handler
+  /**
+   *
+   * @param key
+   * @param newValue
+   */
   const handleStatChange = (key: AttributeKey, newValue: number) => {
     const currentStatValue = agent.stats[key] as number;
     const difference = newValue - currentStatValue;
 
-    // Update the agent's stats property
     setAgent((prevAgent) => {
       const updatedStats = {
         ...prevAgent!.stats,
@@ -58,7 +77,7 @@ export default function PointsBuy() {
     setPoints((prevPoints) => prevPoints - difference);
   };
 
-  if (!agent.stats) return;
+  if (!agent.stats) return null;
 
   return (
     <div className="point-buy-stats flex flex-col items-center">
@@ -72,6 +91,7 @@ export default function PointsBuy() {
           const key = stat as AttributeKey;
           return (
             <div key={key} className="text-black flex flex-col text-center">
+              <label>{AgentStats[key]}</label>
               <PointsBuySelect
                 name={key}
                 value={agent.stats[key]!}

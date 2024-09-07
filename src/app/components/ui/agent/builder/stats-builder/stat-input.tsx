@@ -22,9 +22,7 @@ export default function StatInput(props: { name: AttributeKey }) {
 
   return (
     <>
-      <label className="text-white" htmlFor={props.name}>
-        {AgentStats[props.name]}
-      </label>
+      <label htmlFor={props.name}>{AgentStats[props.name]}</label>
       <input
         name={props.name}
         type="number"

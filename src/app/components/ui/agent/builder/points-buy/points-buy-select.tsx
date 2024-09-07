@@ -1,5 +1,14 @@
 import { AttributeKey } from "@/app/components/utils/agent-utils";
 import { ChangeEvent } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../../../select";
+import { SelectGroup } from "@radix-ui/react-select";
 
 export default function PointsBuySelect(props: {
   value: number;
@@ -18,16 +27,16 @@ export default function PointsBuySelect(props: {
       const suffix = i !== current ? `${pointsNeeded} Points` : "";
 
       options.push(
-        <option disabled={disabled} key={i} value={i}>
+        <SelectItem disabled={disabled} key={i} value={String(i)}>
           {i} {suffix && `(${pointsNeeded > 0 ? "+" : ""}${suffix})`}
-        </option>
+        </SelectItem>
       );
     }
     return options;
   };
 
-  const handleValueChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const newValue = parseInt(e.target.value);
+  const handleValueChange = (val: string) => {
+    const newValue = parseInt(val);
     props.setStat(props.name, newValue);
   };
 
@@ -36,13 +45,14 @@ export default function PointsBuySelect(props: {
       <label className="text-white" htmlFor={props.name}>
         {props.name}:{" "}
       </label>
-      <select
-        name={props.name}
-        value={props.value}
-        onChange={handleValueChange}
-      >
-        {generateOptions(3, 18, props.value)}
-      </select>
+      <Select value={String(props.value)} onValueChange={handleValueChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={props.value} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>{generateOptions(3, 18, props.value)}</SelectGroup>
+        </SelectContent>
+      </Select>
     </div>
   );
 }

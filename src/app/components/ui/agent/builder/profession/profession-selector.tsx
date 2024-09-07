@@ -5,6 +5,7 @@ import ProfessionItem from "./profession-item";
 import { Skill } from "@/types/skills";
 import ProfessionSkillInput from "./profession-skill-select";
 import SelectInput from "../../../select-input";
+import { Button } from "../../../button";
 
 enum FormStep {
   SelectProfession = "SELECT_PROFESSION",
@@ -21,6 +22,7 @@ export default function ProfessionSelector() {
       ? FormStep.ProfessionBuilder
       : FormStep.SelectProfession
   );
+  const [inputValues, setInputValues] = useState<{ [key: string]: string }>({});
 
   const fetchProfessions = async () => {
     const res = await fetch(`/api/professions`);
@@ -49,24 +51,82 @@ export default function ProfessionSelector() {
     setFormStep(FormStep.ProfessionBuilder);
   };
 
-  const professionItems = filteredProfessions.map((profession: IProfession) => (
-    <ProfessionItem
-      className={""}
-      key={profession._id.toString()}
-      profession={profession}
-      setActiveProfession={handleSelectProfession}
-    />
-  ));
-
   const handleCancelSelection = () => {
     setActiveProfession({} as IProfession);
     setFormStep(FormStep.SelectProfession);
   };
 
+  const setProfessionAndSkills = () => {
+    // Step 1: Build the skills object
+    const skills = {};
+
+    // Combine professionalSkills with input values
+    activeProfession.professionalSkills.forEach((skill) => {
+      if (skill.requiresInput && inputValues[skill.name]) {
+        // Format the skill with the input value, e.g., "Science (Biology)"
+        skills[`${skill.name} (${inputValues[skill.name]})`] = skill.value;
+      } else {
+        // Use the skill name directly
+        skills[skill.name] = skill.value;
+      }
+    });
+
+    // Combine additionalSkills with input values, if any
+    if (activeProfession.additionalSkills) {
+      activeProfession.additionalSkills.forEach((skill) => {
+        if (skill.requiresInput && inputValues[skill.name]) {
+          // Format the skill with the input value, e.g., "Language (French)"
+          skills[`${skill.name} (${inputValues[skill.name]})`] = skill.value;
+        } else {
+          // Use the skill name directly
+          skills[skill.name] = skill.value;
+        }
+      });
+    }
+
+    // Step 2: Update the agent's skills
+    setAgent((prevAgent) => {
+      return {
+        ...prevAgent,
+        skills, // Update the skills property with the new skills object
+      };
+    });
+  };
+
+  const handleInputChange = (skillName: string, value: string) => {
+    setInputValues((prevValues) => ({
+      ...prevValues,
+      [skillName]: value,
+    }));
+  };
+
+  const areAllInputsFilled = () => {
+    // Ensure the active profession and its skills are defined
+    if (!activeProfession || !activeProfession.professionalSkills) return false;
+
+    // Check if all required professionalSkills inputs are filled
+    const areProfessionalSkillsFilled =
+      activeProfession.professionalSkills.every(
+        (skill) =>
+          !skill.requiresInput ||
+          (inputValues[skill.name] && inputValues[skill.name].trim() !== "")
+      );
+
+    // Check if all required additionalSkills inputs are filled (if they exist)
+    const areAdditionalSkillsFilled =
+      !activeProfession.additionalSkills ||
+      activeProfession.additionalSkills.every(
+        (skill) =>
+          !skill.requiresInput ||
+          (inputValues[skill.name] && inputValues[skill.name].trim() !== "")
+      );
+
+    return areProfessionalSkillsFilled && areAdditionalSkillsFilled;
+  };
+
   const renderStep = (step: FormStep) => {
     switch (step) {
       case FormStep.SelectProfession:
-        // @todo: turn this into a "SelectProfession View"
         return (
           <>
             <input
@@ -76,24 +136,32 @@ export default function ProfessionSelector() {
               placeholder="Filter professions"
               className="mb-4 p-2 border rounded w-full text-black"
             />
-            <div className="professions-list">{professionItems}</div>
+            <div className="professions-list">
+              {filteredProfessions.map((profession: IProfession) => (
+                <ProfessionItem
+                  className={""}
+                  key={profession._id.toString()}
+                  profession={profession}
+                  setActiveProfession={handleSelectProfession}
+                />
+              ))}
+            </div>
           </>
         );
-        break;
       case FormStep.ProfessionBuilder:
-        let anthropologist_or_historian = false;
-        let anthrpologistOptions = { Anthropology: false, History: false };
-        if (activeProfession.name === "Anthropologist or Historian") {
-          // This profesion has an "or" selection between two skills (history or anthropology)
-          anthropologist_or_historian = true;
-          // @todo: update anthrpologistOptions if agent already has one of these selected
-        }
-
-        // @todo: incorporate above component for selecting this.
         const skills = activeProfession.professionalSkills.map(
-          (skill: Skill, index) => {
+          (skill, index) => {
             if (skill.requiresInput) {
-              return <ProfessionSkillInput key={index} skill={skill} />;
+              return (
+                <ProfessionSkillInput
+                  key={index}
+                  skill={skill}
+                  value={inputValues[skill.name] || ""}
+                  onChange={(e) => {
+                    handleInputChange(skill.name, e.target.value);
+                  }}
+                />
+              );
             } else {
               return (
                 <p key={index}>
@@ -110,9 +178,18 @@ export default function ProfessionSelector() {
           activeProfession.additionalSkills.length > 0
         ) {
           additionalSkills = activeProfession.additionalSkills.map(
-            (skill: Skill, index) => {
+            (skill, index) => {
               if (skill.requiresInput) {
-                return <ProfessionSkillInput key={index} skill={skill} />;
+                return (
+                  <ProfessionSkillInput
+                    key={index}
+                    skill={skill}
+                    value={inputValues[skill.name] || ""}
+                    onChange={(e) => {
+                      handleInputChange(skill.name, e.target.value);
+                    }}
+                  />
+                );
               } else {
                 return (
                   <p key={index}>
@@ -125,38 +202,31 @@ export default function ProfessionSelector() {
         }
 
         return (
-          // @todo: turn this into a separate component
-          // @todo: make the anthropologist or history component.
           <div>
             <h1 className="font-bold text-xl">
               Active Profession: {activeProfession.name}
             </h1>
-            <button onClick={handleCancelSelection}>Cancel selection</button>
-            {anthropologist_or_historian ? (
-              <SelectInput
-                label={"Anthropology or History?"}
-                options={anthrpologistOptions}
-              />
-            ) : (
-              ""
-            )}
+            <Button onClick={handleCancelSelection}>Cancel selection</Button>
             <div>
               <p>Base Skills:</p>
-              <br />
               {skills}
             </div>
-            {additionalSkills.length > 0 ? (
+            {additionalSkills.length > 0 && (
               <div>
                 <p>Additional Skills:</p>
-                <br />
                 {additionalSkills}
               </div>
-            ) : (
-              ""
             )}
+
+            <button
+              className="border-2 rounded-sm p-4 shadow-lg text-base font-black text-white"
+              onClick={setProfessionAndSkills}
+              disabled={!areAllInputsFilled()}
+            >
+              Set Profession
+            </button>
           </div>
         );
-        break;
       default:
         return null;
     }

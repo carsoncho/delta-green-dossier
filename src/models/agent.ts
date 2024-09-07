@@ -20,17 +20,6 @@ export const disorderSchema: Schema<IDisorderDocument> = new Schema({
   type: { type: String, required: true, trim: true },
 });
 
-const StatsSchema = new Schema({
-  stats: {
-    str: { type: Number, min: 3, max: 18 },
-    con: { type: Number, min: 3, max: 18 },
-    dex: { type: Number, min: 3, max: 18 },
-    int: { type: Number, min: 3, max: 18 },
-    pow: { type: Number, min: 3, max: 18 },
-    cha: { type: Number, min: 3, max: 18 },
-  },
-});
-
 const agentSchema: Schema<IAgentDocument> = new Schema(
   {
     givenName: { type: String, required: true, trim: true },
@@ -46,8 +35,16 @@ const agentSchema: Schema<IAgentDocument> = new Schema(
     genderOther: { type: String },
     physicalDescription: { type: String },
     motivations: { type: [String] },
-    stats: StatsSchema,
+    stats: {
+      str: { type: Number, min: 3, max: 18 },
+      con: { type: Number, min: 3, max: 18 },
+      dex: { type: Number, min: 3, max: 18 },
+      int: { type: Number, min: 3, max: 18 },
+      pow: { type: Number, min: 3, max: 18 },
+      cha: { type: Number, min: 3, max: 18 },
+    },
     hasCompletedCreation: { type: Boolean, default: false },
+    statGenerationMode: { type: String, enum: ["manual", "point_buy", ""] },
   },
   {
     // Automatically add 'createdAt' and 'updatedAt' fields to the document
