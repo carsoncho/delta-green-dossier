@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Card(props: {
   title: string;
   body: string;
-  onClick: () => void;
+  onClick?: () => void;
 }) {
   return (
     <div

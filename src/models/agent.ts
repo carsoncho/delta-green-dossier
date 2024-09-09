@@ -1,26 +1,34 @@
 import mongoose, { Schema, Document, Model, Types, ObjectId } from "mongoose";
 import { IAgent, IDisorder } from "@/types/agent";
 
+interface DisorderDocument extends IDisorder, Document {}
+
+export const disorderSchema: Schema<DisorderDocument> = new Schema({
+  name: { type: String, required: true, trim: true },
+  description: { type: String, required: true, trim: true },
+  type: {
+    type: String,
+    enum: ["unnatural", "helplessness", "violence"],
+    required: true,
+    trim: true,
+  },
+});
+
+export const Disorder: Model<DisorderDocument> =
+  mongoose.models.Disorder ||
+  mongoose.model<DisorderDocument>("Disorder", disorderSchema, "Disorder");
+
 // Merging ITodo interface with mongoose's Document interface to create
 // a new interface that represents a todo document in MongoDB
-interface IAgentDocument extends IAgent, Document {
+interface AgentDocument extends IAgent, Document {
   _id: ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
-
-interface IDisorderDocument extends IDisorder, Document {}
-
 // Defining a mongoose schema for the todo document, specifying the types
 // and constraints
 
-export const disorderSchema: Schema<IDisorderDocument> = new Schema({
-  name: { type: String, required: true, trim: true },
-  description: { type: String, required: true, trim: true },
-  type: { type: String, required: true, trim: true },
-});
-
-const agentSchema: Schema<IAgentDocument> = new Schema(
+const agentSchema: Schema<AgentDocument> = new Schema(
   {
     givenName: { type: String, required: true, trim: true },
     familyName: { type: String, required: true, trim: true },
@@ -52,12 +60,6 @@ const agentSchema: Schema<IAgentDocument> = new Schema(
   }
 );
 
-// Creating a mongoose model for the Agent document
-export const Disorder: Model<IDisorderDocument> =
-  mongoose.models.Disorder ||
-  mongoose.model<IDisorderDocument>("Disorder", disorderSchema, "Disorder");
-
-// Creating a mongoose model for the Agent document
-export const Agent: Model<IAgentDocument> =
+export const Agent: Model<AgentDocument> =
   mongoose.models.Agent ||
-  mongoose.model<IAgentDocument>("Agent", agentSchema, "Agents");
+  mongoose.model<AgentDocument>("Agent", agentSchema, "Agents");
