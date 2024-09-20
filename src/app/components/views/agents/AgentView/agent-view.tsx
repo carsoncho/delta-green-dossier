@@ -9,23 +9,30 @@ import DerivedAttributes from "../../../ui/agent/derived-attributes";
 import PsychologicalData from "../../../ui/agent/psychological-data";
 import SkillsList from "../../../ui/agent/skills-list";
 import { IAgent } from "@/types/agent";
+import { getAgent } from "@/features/agents/api/get-agent";
 
-export default function AgentView(props: { agent: IAgent }) {
+export default function AgentView(props: { agentId: string }) {
   const isMobile = useIsMobile();
-  return (
-    <div>
-      {isMobile ? (
-        <CarouselView data={props.agent} />
-      ) : (
-        <div className="desktop-layout w-full">
-          <AgentProfileInfo agent={props.agent} />
-          <AgentAttributes agent={props.agent} />
-          <DerivedAttributes agent={props.agent} />
-          <SkillsList agent={props.agent} />
-          <CombatActionsList />
-          <PsychologicalData agent={props.agent} />
-        </div>
-      )}
-    </div>
-  );
+  const agent = getAgent(props.agentId);
+
+  if (agent === null) {
+    return <p>Sorry no agent found</p>;
+  } else {
+    return (
+      <div>
+        {isMobile ? (
+          <CarouselView data={agent} />
+        ) : (
+          <div className="desktop-layout w-full">
+            <AgentProfileInfo agent={agent} />
+            <AgentAttributes agent={agent} />
+            <DerivedAttributes agent={agent} />
+            <SkillsList agent={agent} />
+            <CombatActionsList />
+            <PsychologicalData agent={agent} />
+          </div>
+        )}
+      </div>
+    );
+  }
 }

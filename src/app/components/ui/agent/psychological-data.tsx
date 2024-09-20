@@ -1,3 +1,5 @@
+"use client";
+
 import { IAgent } from "@/types/agent";
 import AgentGroupWrapper from "./agent-group-wrapper";
 import GroupHeader from "./group-header";

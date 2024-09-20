@@ -5,7 +5,7 @@ import ProfessionItem from "./profession-item";
 import { Skill } from "@/types/skills";
 import ProfessionSkillInput from "./profession-skill-select";
 import SelectInput from "../../../select-input";
-import { Button } from "../../../button";
+import { Button } from "@/app/components/ui/button";
 
 enum FormStep {
   SelectProfession = "SELECT_PROFESSION",
@@ -58,16 +58,16 @@ export default function ProfessionSelector() {
 
   const setProfessionAndSkills = () => {
     // Step 1: Build the skills object
-    const skills = {};
+    const setSkills = {};
 
     // Combine professionalSkills with input values
     activeProfession.professionalSkills.forEach((skill) => {
       if (skill.requiresInput && inputValues[skill.name]) {
         // Format the skill with the input value, e.g., "Science (Biology)"
-        skills[`${skill.name} (${inputValues[skill.name]})`] = skill.value;
+        setSkills[`${skill.name} (${inputValues[skill.name]})`] = skill.value;
       } else {
         // Use the skill name directly
-        skills[skill.name] = skill.value;
+        setSkills[skill.name] = skill.value;
       }
     });
 
@@ -76,21 +76,25 @@ export default function ProfessionSelector() {
       activeProfession.additionalSkills.forEach((skill) => {
         if (skill.requiresInput && inputValues[skill.name]) {
           // Format the skill with the input value, e.g., "Language (French)"
-          skills[`${skill.name} (${inputValues[skill.name]})`] = skill.value;
+          setSkills[`${skill.name} (${inputValues[skill.name]})`] = skill.value;
         } else {
           // Use the skill name directly
-          skills[skill.name] = skill.value;
+          setSkills[skill.name] = skill.value;
         }
       });
     }
+
+    console.log(setSkills);
 
     // Step 2: Update the agent's skills
     setAgent((prevAgent) => {
       return {
         ...prevAgent,
-        skills, // Update the skills property with the new skills object
+        skills: setSkills, // Update the skills property with the new skills object
       };
     });
+
+    console.log(agent);
   };
 
   const handleInputChange = (skillName: string, value: string) => {
@@ -218,13 +222,12 @@ export default function ProfessionSelector() {
               </div>
             )}
 
-            <button
-              className="border-2 rounded-sm p-4 shadow-lg text-base font-black text-white"
+            <Button
               onClick={setProfessionAndSkills}
               disabled={!areAllInputsFilled()}
             >
               Set Profession
-            </button>
+            </Button>
           </div>
         );
       default:

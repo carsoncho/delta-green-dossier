@@ -1,3 +1,5 @@
+"use client";
+
 import Carousel from "../carousel";
 import AgentAttributes from "./agent-attributes";
 import AgentProfileInfo from "./agent-profile-info";

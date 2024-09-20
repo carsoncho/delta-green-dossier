@@ -6,8 +6,6 @@ import { getAgents } from "../api/get-agents";
 
 export default async function AgentsList() {
   const agents = await getAgents();
-  if (!agents) return null;
-
   /**
    * @todo: rework card to use shadcn card.
    */

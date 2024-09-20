@@ -8,7 +8,9 @@ import { IAgent } from "@/types/agent";
  * @todo: Make this retireve based on user ID / auth
  * @returns
  */
-export const getAgents = async (): Promise<IAgent[]> => {
+export const getAgent = async (agent: string): Promise<IAgent | null> => {
   await connectToMongoDB();
-  return await Agent.find({}).lean();
+  return await Agent.findById(agent)
+    .populate(["profession", "disorders"])
+    .lean();
 };

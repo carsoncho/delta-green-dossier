@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { CombatActions } from "../../../../../data/combat-actions";
 import Drawer from "react-modern-drawer";

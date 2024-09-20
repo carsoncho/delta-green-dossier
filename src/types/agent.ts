@@ -33,26 +33,26 @@ export interface IAgent {
   _id: ObjectId;
   givenName: string;
   familyName: string;
-  profession: IProfession;
-  employer: string;
-  nationality: string;
+  profession?: IProfession;
+  employer?: string;
+  nationality?: string;
   gender?: "M | F";
   genderOther?: string;
-  birthDate: Date; // Consider Date type for date parsing
-  education: string;
-  physicalDescription: string;
-  stats: IStats;
-  bonds: IBond[];
+  birthDate?: Date; // Consider Date type for date parsing
+  education?: string;
+  physicalDescription?: string;
+  stats?: IStats;
+  bonds?: IBond[];
   motivations: string[];
-  disorders: IDisorder[];
-  adaptedViolence: number;
-  adaptedHelplessness: number;
+  disorders?: IDisorder[];
+  adaptedViolence?: number;
+  adaptedHelplessness?: number;
   wounds?: string;
   armorAndGear?: string;
   weapons?: string[];
   personalNotes?: string;
   homeDevelopments?: string;
-  skills: Skill[]; // Dynamic skills with defined keys
+  skills?: Skill[]; // Dynamic skills with defined keys
   hasCompletedCreation: boolean;
-  statGenerationMode: Mode;
+  statGenerationMode?: Mode;
 }

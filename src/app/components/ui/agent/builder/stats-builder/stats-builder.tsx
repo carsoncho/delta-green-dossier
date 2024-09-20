@@ -76,7 +76,11 @@ export default function StatsBuilder(props: {
       <label htmlFor="generation-method">
         Select your statistics generation method
       </label>
-      <Select value={mode} onValueChange={handleModeChange}>
+      <Select
+        name="generation-method"
+        value={mode}
+        onValueChange={handleModeChange}
+      >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="-- Choose generation method --" />
         </SelectTrigger>
