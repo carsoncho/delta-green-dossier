@@ -11,6 +11,7 @@ import SkillsList from "@/app/components/ui/agent/skills-list";
 import { getAgent } from "../api/get-agent";
 import Link from "next/link";
 import { IAgent } from "@/types/agent";
+import { Button } from "@/app/components/ui/button";
 
 export default function AgentView(props: { agent: IAgent }) {
   const isMobile = useIsMobile();
@@ -28,7 +29,7 @@ export default function AgentView(props: { agent: IAgent }) {
           fill in the rest of the agents details.
         </p>
         <Link href={`/agent/${props.agent._id}/builder`}>
-          Complete agent dossier
+          <Button>Complete agent dossier</Button>
         </Link>
       </div>
     );

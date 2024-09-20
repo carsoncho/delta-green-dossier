@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Courier_Prime } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/header";
-import { AgentProvider } from "@/context/agent-context";
 import { Toaster } from "./components/ui/toaster";
+import Providers from "./providers";
 
 const courierPrime = Courier_Prime({
   weight: "400",
@@ -24,10 +24,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={classes}>
-        <AgentProvider>
+        <Providers>
           <Header />
           {children}
-        </AgentProvider>
+        </Providers>
         <Toaster />
       </body>
     </html>
