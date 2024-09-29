@@ -1,6 +1,5 @@
 "use server";
 import { Agent } from "@/models/agent";
-import Profession from "@/models/profession";
 import { connectToMongoDB } from "@/lib/mongodb";
 import { cache } from "react";
 import { IAgent } from "@/types/agent";

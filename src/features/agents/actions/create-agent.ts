@@ -1,12 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { CreateAgent } from "../api/create-agent";
+import { createAgent } from "../api/create-agent";
 import { redirect } from "next/navigation";
 import { error } from "console";
 
-export async function createAgent(formData: FormData) {
-  const agent = await CreateAgent();
+export async function createAgentAction(formData: FormData) {
+  const agent = await createAgent();
   if (!agent) {
     throw error("failed to create agent");
   }

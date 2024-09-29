@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { createAgent } from "../actions/create-agent";
+import { createAgentAction } from "../actions/create-agent";
 import { Button } from "@/app/components/ui/button";
 
 function SubmitButton() {
@@ -15,9 +15,15 @@ function SubmitButton() {
 }
 
 export default function CreateAgent() {
+  const handleClick = () => {
+    alert("todo: implement create premade agent");
+  };
   return (
-    <form action={createAgent}>
-      <SubmitButton />
-    </form>
+    <>
+      <form action={createAgentAction}>
+        <SubmitButton />
+      </form>
+      <Button onClick={handleClick}>Create Premade Agent</Button>
+    </>
   );
 }

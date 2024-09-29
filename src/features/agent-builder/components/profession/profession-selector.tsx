@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import ProfessionItem from "./profession-item";
 import ProfessionSkillInput from "./profession-skill-select";
 import { Button } from "@/app/components/ui/button/button";
+import { Accordion } from "@/app/components/ui/accordion";
+import {
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@radix-ui/react-accordion";
 
 enum FormStep {
   SelectProfession = "SELECT_PROFESSION",
@@ -127,16 +133,17 @@ export default function ProfessionSelector(props: {
               placeholder="Filter professions"
               className="mb-4 p-2 border rounded w-full text-black"
             />
-            <div className="professions-list">
-              {filteredProfessions.map((profession: IProfession) => (
+
+            <Accordion type="single" collapsible>
+              {filteredProfessions.map((profession: IProfession, index) => (
                 <ProfessionItem
                   className={""}
-                  key={profession._id}
+                  key={index}
                   profession={profession}
                   setActiveProfession={handleSelectProfession}
                 />
               ))}
-            </div>
+            </Accordion>
           </>
         );
       case FormStep.ProfessionBuilder:

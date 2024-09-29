@@ -1,3 +1,4 @@
+import { Button } from "@/app/components/ui/button";
 import CreateAgent from "@/features/agents/components/create-agent";
 
 export const metadata = {

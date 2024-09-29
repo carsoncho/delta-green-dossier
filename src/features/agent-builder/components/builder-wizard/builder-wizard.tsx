@@ -4,7 +4,7 @@ import { Button } from "@/app/components/ui/button/button";
 import { Input } from "@/app/components/ui/input";
 import BuilderHeader from "../builder-header/builder-header";
 import { AgentName } from "@/utils/agent-utils";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useAgentContext } from "@/context/agent-context";
 import StatsBuilder from "../stats-builder/stats-builder";
 import { FiSave } from "react-icons/fi";
@@ -39,7 +39,9 @@ export default function BuilderWizard(props: {
   const [formStep, setFormStep] = useState(1);
   const { agent, setAgent } = useAgentContext();
 
-  setAgent(props.agent);
+  useEffect(() => {
+    setAgent(props.agent);
+  }, [props.agent, setAgent]);
 
   // @todo: update this to be completed based on what's saved in the agent.
   const [completedSteps, setCompletedSteps] = useState({
