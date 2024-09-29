@@ -1,14 +1,14 @@
-import { Agent } from "@/models/agent";
+// src/features/agents/api/get-agents.ts
 import { connectToMongoDB } from "@/lib/mongodb";
-import { IAgent } from "@/types/agent";
+import { cache } from "react";
+import { Agent } from "@/models/agent"; // Import Agent model explicitly
 
-/**
- * Retrieves all Agents
- *
- * @todo: Make this retireve based on user ID / auth
- * @returns
- */
-export const getAgents = async (): Promise<IAgent[]> => {
-  await connectToMongoDB();
-  return await Agent.find({}).lean();
+const getAgentsFromDB = async (): Promise<string> => {
+  await connectToMongoDB(); // Ensure database connection and model registration
+  const agents = await Agent.find({})
+    .populate("disorders")
+    .populate("profession");
+  return JSON.stringify(agents);
 };
+
+export const getAgents = cache(getAgentsFromDB);

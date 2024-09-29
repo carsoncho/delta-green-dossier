@@ -1,11 +1,13 @@
-import { AgentName } from "@/app/components/utils/agent-utils";
+import { AgentName } from "@/utils/agent-utils";
 import styles from "./builder-header.module.css";
 import { IAgent } from "@/types/agent";
 import { Dispatch, SetStateAction } from "react";
-import { CompletedSteps, FormStep } from "@/app/agent/[agent]/builder/page";
+import {
+  CompletedSteps,
+  FormStep,
+} from "@/features/agent-builder/components/builder-wizard/builder-wizard";
 
 export default function BuilderHeader(props: {
-  agent: IAgent;
   formStep: number;
   completedSteps: CompletedSteps;
   setFormStep: Dispatch<SetStateAction<number>>;

@@ -1,5 +1,4 @@
 import { FullName, IAgent, IStats } from "@/types/agent";
-import { IProfession } from "@/types/professions";
 
 const familyNames = [
   "Li",

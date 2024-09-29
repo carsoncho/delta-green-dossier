@@ -30,7 +30,7 @@ export interface FullName {
 export type Mode = "manual" | "point_buy" | "";
 
 export interface IAgent {
-  _id: ObjectId;
+  _id: string;
   givenName: string;
   familyName: string;
   profession?: IProfession;
@@ -38,7 +38,7 @@ export interface IAgent {
   nationality?: string;
   gender?: "M | F";
   genderOther?: string;
-  birthDate?: Date; // Consider Date type for date parsing
+  birthDate?: Date;
   education?: string;
   physicalDescription?: string;
   stats?: IStats;
@@ -52,7 +52,7 @@ export interface IAgent {
   weapons?: string[];
   personalNotes?: string;
   homeDevelopments?: string;
-  skills?: Skill[]; // Dynamic skills with defined keys
+  skills?: Skill[];
   hasCompletedCreation: boolean;
   statGenerationMode?: Mode;
 }

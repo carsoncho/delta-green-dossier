@@ -8,12 +8,12 @@ export interface Rule {
 }
 
 export interface IProfession {
-  _id: ObjectId;
+  _id: string | ObjectId;
   name: string;
   description: string;
   recommendedStats: string;
   professionalSkills: Skill[];
-  additionalSkills: Skill[];
+  additionalSkills?: Skill[];
   bonds: number;
   rule?: Rule;
 }

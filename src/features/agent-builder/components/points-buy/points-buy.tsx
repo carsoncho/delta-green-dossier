@@ -4,7 +4,7 @@ import {
   AreStatsFilled,
   AttributeKey,
   GetTotalPoints,
-} from "@/app/components/utils/agent-utils";
+} from "@/utils/agent-utils";
 import { IAgent, IStats, Mode } from "@/types/agent";
 import PointsBuySelect from "./points-buy-select";
 import { useAgentContext } from "@/context/agent-context";

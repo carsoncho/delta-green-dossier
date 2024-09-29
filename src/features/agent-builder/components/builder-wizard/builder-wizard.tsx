@@ -3,21 +3,22 @@ import { IAgent } from "@/types/agent";
 import { Button } from "@/app/components/ui/button/button";
 import { Input } from "@/app/components/ui/input";
 import BuilderHeader from "../builder-header/builder-header";
-import { AgentName } from "@/app/components/utils/agent-utils";
+import { AgentName } from "@/utils/agent-utils";
 import { ChangeEvent, useState } from "react";
 import { useAgentContext } from "@/context/agent-context";
 import StatsBuilder from "../stats-builder/stats-builder";
 import { FiSave } from "react-icons/fi";
 import { toast } from "@/hooks/use-toast";
 import ProfessionSelector from "../profession/profession-selector";
+import { IProfession } from "@/types/professions";
 /**
  * Enum for tracking all the required steps being completed on the review "step"
  */
 export enum FormStep {
-  StatsFilled = "STATS_FILLED",
-  ProfessionFilled = "PROFESSION_FILLED",
-  BondsFilled = "BONDS_FILLED",
-  PersonalDetailsFilled = "DETAILS_FILLED",
+  StatsFilled,
+  ProfessionFilled,
+  BondsFilled,
+  PersonalDetailsFilled,
 }
 
 export type CompletedSteps = {
@@ -31,9 +32,14 @@ interface IAgentPutParams {
   agent: IAgent;
 }
 
-export default function BuilderWizard(props: { agent: IAgent }) {
+export default function BuilderWizard(props: {
+  agent: IAgent;
+  professions: IProfession[];
+}) {
   const [formStep, setFormStep] = useState(1);
   const { agent, setAgent } = useAgentContext();
+
+  setAgent(props.agent);
 
   // @todo: update this to be completed based on what's saved in the agent.
   const [completedSteps, setCompletedSteps] = useState({
@@ -84,11 +90,8 @@ export default function BuilderWizard(props: { agent: IAgent }) {
 
   /**
    *
-   * @param e
    */
-  const handleSave = (
-    e: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>
-  ) => {
+  const handleSave = () => {
     saveAgent({ agent: agent })
       .then(() => {
         toast({
@@ -109,17 +112,17 @@ export default function BuilderWizard(props: { agent: IAgent }) {
    * @param props
    */
   const saveAgent = async (props: IAgentPutParams) => {
-    if (!props.agent._id) {
+    if (!agent._id) {
       console.error("cannot have agent without id");
     }
 
-    const id = props.agent._id;
+    const id = agent._id;
     const res = await fetch(`/api/agents/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(props.agent),
+      body: JSON.stringify(agent),
     });
 
     if (!res.ok) {
@@ -138,7 +141,7 @@ export default function BuilderWizard(props: { agent: IAgent }) {
         return (
           <div className="">
             <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-              Welcome {AgentName(agent)}{" "}
+              Welcome {AgentName(agent)}
               <Button onClick={handleSave} disabled={agent === originalAgent}>
                 <FiSave />
               </Button>
@@ -146,6 +149,7 @@ export default function BuilderWizard(props: { agent: IAgent }) {
 
             <StatsBuilder
               completedSteps={completedSteps}
+              handleSave={handleSave}
               toggleCompletedSteps={toggleCompletedStep}
             />
 
@@ -172,7 +176,7 @@ export default function BuilderWizard(props: { agent: IAgent }) {
         return (
           <div>
             <h2>Select your profession {AgentName(agent)}</h2>
-            <ProfessionSelector />
+            <ProfessionSelector professions={props.professions} />
             <button onClick={prevStep}>Previous</button>
             <button onClick={nextStep}>Next</button>
           </div>
@@ -217,10 +221,11 @@ export default function BuilderWizard(props: { agent: IAgent }) {
     }
   };
 
+  if (!agent) return <p>Waiting....</p>;
+
   return (
     <>
       <BuilderHeader
-        agent={agent}
         formStep={formStep}
         completedSteps={completedSteps}
         setFormStep={setFormStep}

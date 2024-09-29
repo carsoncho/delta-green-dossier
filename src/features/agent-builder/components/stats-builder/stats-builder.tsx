@@ -1,9 +1,5 @@
 import { useEffect } from "react";
-import {
-  AgentStats,
-  AreStatsFilled,
-  AttributeKey,
-} from "@/app/components/utils/agent-utils";
+import { AgentStats, AreStatsFilled, AttributeKey } from "@/utils/agent-utils";
 import { useAgentContext } from "@/context/agent-context";
 import { IAgent, IStats, Mode } from "@/types/agent";
 import PointsBuy from "@/features/agent-builder/components/points-buy/points-buy";
@@ -16,19 +12,20 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../../../../app/components/ui/select";
-import { FormStep } from "@/app/agent/[agent]/builder/page";
+} from "@/app/components/ui/select";
+import {
+  FormStep,
+  CompletedSteps,
+} from "@/features/agent-builder/components/builder-wizard/builder-wizard";
 
 export default function StatsBuilder(props: {
-  completedSteps: {
-    [FormStep.StatsFilled]: boolean;
-    [FormStep.ProfessionFilled]: boolean;
-    [FormStep.BondsFilled]: boolean;
-    [FormStep.PersonalDetailsFilled]: boolean;
-  };
+  completedSteps: CompletedSteps;
+  handleSave: () => void;
   toggleCompletedSteps: (step: FormStep) => void;
 }) {
   const { agent, setAgent } = useAgentContext();
+
+  if (!agent) return <p>Waiting...</p>;
 
   const mode = agent.statGenerationMode ?? "";
 

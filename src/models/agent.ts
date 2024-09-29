@@ -1,5 +1,40 @@
 import mongoose, { Schema, Document, Model, Types, ObjectId } from "mongoose";
 import { IAgent, IDisorder } from "@/types/agent";
+import { IProfession } from "@/types/professions";
+
+const RuleSchema = new Schema({
+  ruleUpdated: {
+    type: {
+      type: String,
+      enum: ["choose", "chooseIfNotOwned"],
+      required: true,
+    },
+    count: { type: Number, required: true },
+    text: { type: String, required: true },
+  },
+});
+
+export interface IProfessionDocument extends IProfession, Document {
+  _id: ObjectId;
+}
+
+const professionSchema: Schema<IProfessionDocument> = new Schema({
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  recommendedStats: { type: String, required: true },
+  professionalSkills: { type: Object },
+  additionalSkills: { type: Object },
+  bonds: { type: Number, required: true },
+  rule: { type: RuleSchema },
+});
+
+export const Profession: Model<IProfessionDocument> =
+  mongoose.models.Profession ||
+  mongoose.model<IProfessionDocument>(
+    "Profession",
+    professionSchema,
+    "Professions"
+  );
 
 interface DisorderDocument extends IDisorder, Document {}
 
@@ -20,7 +55,7 @@ export const Disorder: Model<DisorderDocument> =
 
 // Merging ITodo interface with mongoose's Document interface to create
 // a new interface that represents a todo document in MongoDB
-interface AgentDocument extends IAgent, Document {
+export interface AgentDocument extends IAgent, Document {
   _id: ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -32,14 +67,18 @@ const agentSchema: Schema<AgentDocument> = new Schema(
   {
     givenName: { type: String, required: true, trim: true },
     familyName: { type: String, required: true, trim: true },
-    disorders: [{ type: mongoose.Schema.Types.ObjectId, ref: "Disorder" }],
+    disorders: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Disorder" }],
+      default: null,
+    },
     profession: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Professions",
+      ref: "Profession",
+      default: null,
     },
-    birthDate: { type: Date },
-    education: { type: String },
-    gender: { type: String },
+    birthDate: { type: Date, default: null },
+    education: { type: String, default: null },
+    gender: { type: String, default: null },
     genderOther: { type: String },
     physicalDescription: { type: String },
     motivations: { type: [String] },

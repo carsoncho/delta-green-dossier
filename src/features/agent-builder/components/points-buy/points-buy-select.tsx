@@ -1,4 +1,4 @@
-import { AttributeKey } from "@/app/components/utils/agent-utils";
+import { AttributeKey } from "@/utils/agent-utils";
 import { ChangeEvent } from "react";
 import {
   Select,

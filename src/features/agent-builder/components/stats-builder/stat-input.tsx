@@ -1,4 +1,4 @@
-import { AgentStats, AttributeKey } from "@/app/components/utils/agent-utils";
+import { AgentStats, AttributeKey } from "@/utils/agent-utils";
 import { useAgentContext } from "@/context/agent-context";
 import { IAgent, IStats } from "@/types/agent";
 import { ChangeEvent } from "react";

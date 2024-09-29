@@ -1,7 +1,7 @@
 import GroupHeader from "./group-header";
 import AgentGroupWrapper from "./agent-group-wrapper";
 import { IAgent, IStats } from "@/types/agent";
-import { AgentStats } from "../../utils/agent-utils";
+import { AgentStats } from "@/utils/agent-utils";
 
 export default function AgentAttributes(props: {
   className?: string;

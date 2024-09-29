@@ -1,22 +1,101 @@
-import Card from "@/app/components/ui/card/card";
-import { AgentName } from "@/app/components/utils/agent-utils";
+"use client";
+
+import { AgentName } from "@/utils/agent-utils";
 import { IAgent } from "@/types/agent";
 import Link from "next/link";
-import { getAgents } from "../api/get-agents";
+import { useAgentContext } from "@/context/agent-context";
+import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { FiDelete, FiSearch } from "react-icons/fi";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+import { useDeleteAgent } from "../hooks/use-delete-agent";
 
-export default async function AgentsList() {
-  const agents = await getAgents();
-  /**
-   * @todo: rework card to use shadcn card.
-   */
+interface AgentsListProps {
+  agents: IAgent[];
+}
+
+export default function AgentsList({ agents }: AgentsListProps) {
+  const { setAgent } = useAgentContext();
+  const [agentToDelete, setAgentToDelete] = useState<string | null>(null);
+  const [confirmationText, setConfirmationText] = useState("");
+  const { deleteAgent, isLoading } = useDeleteAgent({
+    onSuccess: () => {
+      setAgentToDelete(null); // Close the dialog on success
+      setConfirmationText(""); // Reset the confirmation text
+    },
+  });
+
+  const handleDelete = () => {
+    if (agentToDelete) {
+      deleteAgent(agentToDelete);
+    }
+  };
+
   const agentsList = agents.map((agent: IAgent) => (
-    <Link key={agent._id.toString()} href={`/agent/${agent._id}`}>
-      <Card title={AgentName(agent)} body={agent.physicalDescription} />
-    </Link>
+    <Card key={agent._id.toString()} className="w-[350px]">
+      <CardTitle>{AgentName(agent)}</CardTitle>
+      <CardContent>{agent.physicalDescription}</CardContent>
+      <CardFooter>
+        <Link href={`/agent/${agent._id}`} onClick={() => setAgent(agent)}>
+          <Button>
+            <FiSearch /> View
+          </Button>
+        </Link>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button onClick={() => setAgentToDelete(agent._id.toString())}>
+              <FiDelete /> Delete
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. Please type "DELETE" to confirm.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <input
+              type="text"
+              placeholder="Type DELETE"
+              value={confirmationText}
+              onChange={(e) => setConfirmationText(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                onClick={() => {
+                  setAgentToDelete(null); // Close the dialog
+                  setConfirmationText(""); // Reset the confirmation text
+                }}
+              >
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                disabled={confirmationText !== "DELETE" || isLoading}
+              >
+                Confirm
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </CardFooter>
+    </Card>
   ));
 
   return (
-    <div className="agent-list grid grid-cols-1 gap-4 md:grid-cols-6">
+    <div className="grid grid-flow-row-dense grid-cols-3 grid-rows-3">
       {agentsList}
     </div>
   );

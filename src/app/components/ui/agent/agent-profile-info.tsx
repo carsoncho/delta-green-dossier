@@ -1,4 +1,4 @@
-import { AgentName } from "@/components/utils/agent-utils";
+import { AgentName } from "@/utils/agent-utils";
 import AgentGroupWrapper from "./agent-group-wrapper";
 import GroupHeader from "./group-header";
 import { IAgent } from "@/types/agent";

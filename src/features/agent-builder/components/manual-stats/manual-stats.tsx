@@ -1,4 +1,4 @@
-import { AgentStats, AttributeKey } from "@/app/components/utils/agent-utils";
+import { AgentStats, AttributeKey } from "@/utils/agent-utils";
 import StatInput from "../stats-builder/stat-input";
 import { useAgentContext } from "@/context/agent-context";
 import { useEffect, useRef } from "react";

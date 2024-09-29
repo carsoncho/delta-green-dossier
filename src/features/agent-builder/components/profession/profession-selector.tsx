@@ -10,9 +10,10 @@ enum FormStep {
   ProfessionBuilder = "PROFESSION_BUILDER",
 }
 
-export default function ProfessionSelector() {
+export default function ProfessionSelector(props: {
+  professions: IProfession[];
+}) {
   const { agent, setAgent } = useAgentContext();
-  const [professions, setProfessions] = useState<IProfession[]>([]);
   const [activeProfession, setActiveProfession] = useState({} as IProfession);
   const [searchFilter, setSearchFilter] = useState("");
   const [formStep, setFormStep] = useState<FormStep>(
@@ -22,25 +23,13 @@ export default function ProfessionSelector() {
   );
   const [inputValues, setInputValues] = useState<{ [key: string]: string }>({});
 
-  const fetchProfessions = async () => {
-    const res = await fetch(`/api/professions`);
-    const professions = await res.json();
-    return professions;
-  };
-
-  useEffect(() => {
-    fetchProfessions().then((res: { professions: IProfession[] }) => {
-      setProfessions(res.professions);
-    });
-  }, []);
-
-  if (!professions) return null;
+  if (!props.professions) return null;
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchFilter(event.target.value);
   };
 
-  const filteredProfessions = professions.filter((profession) =>
+  const filteredProfessions = props.professions.filter((profession) =>
     profession.name.toLowerCase().includes(searchFilter.toLowerCase())
   );
 
@@ -142,7 +131,7 @@ export default function ProfessionSelector() {
               {filteredProfessions.map((profession: IProfession) => (
                 <ProfessionItem
                   className={""}
-                  key={profession._id.toString()}
+                  key={profession._id}
                   profession={profession}
                   setActiveProfession={handleSelectProfession}
                 />
