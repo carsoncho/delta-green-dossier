@@ -59,6 +59,48 @@ export default function StatsBuilder(props: {
     return <PointsBuy />;
   };
 
+  /**
+   * Hit points is the average of the Agent's Strength and Constitution stat, rounded up.
+   *
+   * @returns number
+   *   The hit point value for the agent
+   */
+  const calculateHitPoints = () => {
+    if (!agent.stats?.str || !agent.stats?.con) {
+      return;
+    }
+
+    const hp = Math.ceil((agent.stats?.str + agent.stats?.con) / 2);
+    return hp;
+  };
+
+  /**
+   * Sanity points is the agent's POW (power) stat multiplied by 5.
+   *
+   * @returns number
+   * The sanity value for the agent.
+   */
+  const calculateSanity = () => {
+    if (!agent.stats?.pow) {
+      return;
+    }
+
+    return agent.stats.pow * 5;
+  };
+
+  /**
+   * The breaking point value is the agent's POW (power) stat multipled by 4.
+   *
+   * @returns number
+   *   The breaking point value for the agent.
+   */
+  const calculateBreakingPoint = () => {
+    if (!agent.stats?.pow) {
+      return;
+    }
+    return agent.stats.pow * 4;
+  };
+
   return (
     <>
       <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
@@ -93,6 +135,20 @@ export default function StatsBuilder(props: {
       {mode === "manual" && renderManualStats()}
       {mode === "point_buy" && renderPointBuyStats()}
       {!mode && <p>Please select a generation method.</p>}
+
+      {AreStatsFilled(agent) ? (
+        <div className="derived-stats">
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            Derived Attributes
+          </h3>
+          <p>Hit Points: {calculateHitPoints()}</p>
+          <p>Will power: {agent.stats?.pow}</p>
+          <p>Sanity points: {calculateSanity()}</p>
+          <p>Breaking point: {calculateBreakingPoint()}</p>
+        </div>
+      ) : (
+        ""
+      )}
     </>
   );
 }
