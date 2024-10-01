@@ -1,10 +1,11 @@
-// src/features/agents/api/get-agents.ts
+"use server";
+
 import { connectToMongoDB } from "@/lib/mongodb";
 import { cache } from "react";
-import { Agent } from "@/models/agent"; // Import Agent model explicitly
+import { Agent } from "@/models/agent";
 
 const getAgentsFromDB = async (): Promise<string> => {
-  await connectToMongoDB(); // Ensure database connection and model registration
+  await connectToMongoDB();
   const agents = await Agent.find({})
     .populate("disorders")
     .populate("profession");

@@ -4,7 +4,7 @@ import { connectToMongoDB } from "@/lib/mongodb";
 import { Agent } from "@/models/agent";
 import { revalidatePath } from "next/cache";
 
-export async function deleteAgentAction(agentId: string) {
+export async function deleteAgent(agentId: string) {
   try {
     await connectToMongoDB();
     await Agent.findByIdAndDelete(agentId);

@@ -14,6 +14,13 @@ const RuleSchema = new Schema({
   },
 });
 
+const SkillSchema = new Schema({
+  name: { type: String, required: true },
+  value: { type: Number, required: true },
+  requiresInput: { type: Boolean, required: true },
+  inputLabel: { type: String },
+});
+
 export interface IProfessionDocument extends IProfession, Document {
   _id: ObjectId;
 }
@@ -22,8 +29,8 @@ const professionSchema: Schema<IProfessionDocument> = new Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
   recommendedStats: { type: String, required: true },
-  professionalSkills: { type: Object },
-  additionalSkills: { type: Object },
+  professionalSkills: [SkillSchema],
+  additionalSkills: [SkillSchema],
   bonds: { type: Number, required: true },
   rule: { type: RuleSchema },
 });

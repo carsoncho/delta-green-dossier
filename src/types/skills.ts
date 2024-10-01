@@ -7,4 +7,5 @@ export type Skill = {
   name: SkillKey;
   value: number;
   requiresInput: boolean;
+  inputLabel: string;
 };

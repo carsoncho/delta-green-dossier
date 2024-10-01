@@ -1,3 +1,4 @@
+"use server";
 import { connectToMongoDB } from "@/lib/mongodb";
 import { cache } from "react";
 import { IProfession } from "@/types/professions";

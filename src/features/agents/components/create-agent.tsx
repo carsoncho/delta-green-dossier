@@ -1,29 +1,43 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
-import { createAgentAction } from "../actions/create-agent";
 import { Button } from "@/app/components/ui/button";
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button type="submit" aria-disabled={pending}>
-      Create new Agent
-    </Button>
-  );
-}
+import { useCreateAgent } from "../hooks/use-create-agent";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function CreateAgent() {
-  const handleClick = () => {
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const { createAgentAction, isLoading } = useCreateAgent({
+    onSuccess: (agent) => {
+      router.push(`/agent/${agent._id}/builder`);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+      });
+    },
+  });
+
+  const handleStandardClick = () => {
+    if (!isLoading) {
+      createAgentAction();
+    }
+  };
+
+  const handlePremadeClick = () => {
     alert("todo: implement create premade agent");
   };
   return (
     <>
-      <form action={createAgentAction}>
-        <SubmitButton />
-      </form>
-      <Button onClick={handleClick}>Create Premade Agent</Button>
+      <Button onClick={handleStandardClick} disabled={isLoading}>
+        Create new Agent
+      </Button>
+      <Button onClick={handlePremadeClick} disabled={isLoading}>
+        Create Premade Agent
+      </Button>
     </>
   );
 }

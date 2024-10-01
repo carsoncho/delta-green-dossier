@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { deleteAgentAction } from "../actions/delete-agent";
+import { deleteAgent } from "../api/delete-agent";
 
 type UseDeleteAgentOptions = {
   onSuccess?: () => void;
@@ -14,29 +13,19 @@ export function useDeleteAgent({
   onError,
 }: UseDeleteAgentOptions = {}) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isPending, startTransition] = useTransition(); // To handle transitions
-  const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
 
-  const deleteAgent = (agentId: string) => {
+  const deleteAgentAction = (agentId: string) => {
     setIsLoading(true);
 
     startTransition(async () => {
       try {
-        const response = await deleteAgentAction(agentId); // Call the server action
+        const response = await deleteAgent(agentId);
 
         if (!response.success) throw new Error("Failed to delete agent");
 
-        toast({
-          title: "Success",
-          description: "Agent successfully deleted.",
-        });
-
         onSuccess?.();
       } catch (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-        });
         onError?.(error);
       } finally {
         setIsLoading(false);
@@ -44,5 +33,5 @@ export function useDeleteAgent({
     });
   };
 
-  return { deleteAgent, isLoading: isLoading || isPending };
+  return { deleteAgentAction, isLoading: isLoading || isPending };
 }

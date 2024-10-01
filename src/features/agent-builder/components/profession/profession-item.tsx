@@ -6,7 +6,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
-import { FaUserDoctor } from "react-icons/fa6";
 
 export default function ProfessionItem(props: {
   profession: IProfession;

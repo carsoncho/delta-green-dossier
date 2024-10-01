@@ -18,7 +18,7 @@ export default function ProfessionSkillInput(props: {
         className="text-black"
         type="text"
         value={props.value}
-        placeholder={"..."}
+        placeholder={props.skill.inputLabel}
         onChange={props.onChange}
       />
       <span> {props.skill.value}%</span>

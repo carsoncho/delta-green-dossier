@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { useDeleteAgent } from "../hooks/use-delete-agent";
+import { useToast } from "@/hooks/use-toast";
 
 interface AgentsListProps {
   agents: IAgent[];
@@ -29,16 +30,27 @@ export default function AgentsList({ agents }: AgentsListProps) {
   const { setAgent } = useAgentContext();
   const [agentToDelete, setAgentToDelete] = useState<string | null>(null);
   const [confirmationText, setConfirmationText] = useState("");
-  const { deleteAgent, isLoading } = useDeleteAgent({
+  const { toast } = useToast();
+  const { deleteAgentAction, isLoading } = useDeleteAgent({
     onSuccess: () => {
-      setAgentToDelete(null); // Close the dialog on success
-      setConfirmationText(""); // Reset the confirmation text
+      toast({
+        title: "Success",
+        description: "Agent successfully deleted.",
+      });
+      setAgentToDelete(null);
+      setConfirmationText("");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+      });
     },
   });
 
   const handleDelete = () => {
     if (agentToDelete) {
-      deleteAgent(agentToDelete);
+      deleteAgentAction(agentToDelete);
     }
   };
 
