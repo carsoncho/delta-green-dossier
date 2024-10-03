@@ -152,7 +152,7 @@ export default function BuilderWizard(props: {
             <StatsBuilder
               completedSteps={completedSteps}
               handleSave={handleSave}
-              toggleCompletedSteps={toggleCompletedStep}
+              toggleCompletedStep={toggleCompletedStep}
             />
 
             <div className="grid grid-cols-1 gap-6">
@@ -177,8 +177,17 @@ export default function BuilderWizard(props: {
       case 2:
         return (
           <div>
-            <h2>Select your profession {AgentName(agent)}</h2>
-            <ProfessionSelector professions={props.professions} />
+            <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+              Select your profession {AgentName(agent)}
+              <Button onClick={handleSave} disabled={agent === originalAgent}>
+                <FiSave />
+              </Button>
+            </h2>
+            <ProfessionSelector
+              professions={props.professions}
+              toggleCompletedStep={toggleCompletedStep}
+              completedSteps={completedSteps}
+            />
             <button onClick={prevStep}>Previous</button>
             <button onClick={nextStep}>Next</button>
           </div>

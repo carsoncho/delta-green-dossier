@@ -17,11 +17,12 @@ import {
   FormStep,
   CompletedSteps,
 } from "@/features/agent-builder/components/builder-wizard/builder-wizard";
+import DerivedAttributes from "../derived-stats";
 
 export default function StatsBuilder(props: {
   completedSteps: CompletedSteps;
   handleSave: () => void;
-  toggleCompletedSteps: (step: FormStep) => void;
+  toggleCompletedStep: (step: FormStep) => void;
 }) {
   const { agent, setAgent } = useAgentContext();
 
@@ -29,76 +30,22 @@ export default function StatsBuilder(props: {
 
   const mode = agent.statGenerationMode ?? "";
 
+  useEffect(() => {
+    const statsFilled = AreStatsFilled(agent);
+    const isStepCompleted = props.completedSteps?.[FormStep.StatsFilled];
+
+    // If stats is filled but we haven't completed the step, toggle completion and vice versa.
+    if (statsFilled !== isStepCompleted) {
+      props.toggleCompletedStep(FormStep.StatsFilled);
+    }
+  }, [agent, mode, agent.stats, props]);
+
   const handleModeChange = (val: string) => {
     const value = val as Mode;
     setAgent((agent) => {
       const updatedAgent = agent || ({} as IAgent);
       return { ...updatedAgent, statGenerationMode: value };
     });
-  };
-
-  useEffect(() => {
-    if (agent && mode) {
-      const statsFilled = AreStatsFilled(agent);
-      const isStepCompleted = props.completedSteps?.[FormStep.StatsFilled];
-
-      // If stats is filled but we haven't completed the step, toggle completion and vice versa.
-      if (statsFilled !== isStepCompleted) {
-        props.toggleCompletedSteps(FormStep.StatsFilled);
-      }
-    }
-  }, [agent, mode, agent.stats, props]);
-
-  if (!agent) return null;
-
-  const renderManualStats = () => {
-    return <ManualStats />;
-  };
-
-  const renderPointBuyStats = () => {
-    return <PointsBuy />;
-  };
-
-  /**
-   * Hit points is the average of the Agent's Strength and Constitution stat, rounded up.
-   *
-   * @returns number
-   *   The hit point value for the agent
-   */
-  const calculateHitPoints = () => {
-    if (!agent.stats?.str || !agent.stats?.con) {
-      return;
-    }
-
-    const hp = Math.ceil((agent.stats?.str + agent.stats?.con) / 2);
-    return hp;
-  };
-
-  /**
-   * Sanity points is the agent's POW (power) stat multiplied by 5.
-   *
-   * @returns number
-   * The sanity value for the agent.
-   */
-  const calculateSanity = () => {
-    if (!agent.stats?.pow) {
-      return;
-    }
-
-    return agent.stats.pow * 5;
-  };
-
-  /**
-   * The breaking point value is the agent's POW (power) stat multipled by 4.
-   *
-   * @returns number
-   *   The breaking point value for the agent.
-   */
-  const calculateBreakingPoint = () => {
-    if (!agent.stats?.pow) {
-      return;
-    }
-    return agent.stats.pow * 4;
   };
 
   return (
@@ -132,23 +79,11 @@ export default function StatsBuilder(props: {
         </SelectContent>
       </Select>
 
-      {mode === "manual" && renderManualStats()}
-      {mode === "point_buy" && renderPointBuyStats()}
+      {mode === "manual" && <ManualStats />}
+      {mode === "point_buy" && <PointsBuy />}
       {!mode && <p>Please select a generation method.</p>}
 
-      {AreStatsFilled(agent) ? (
-        <div className="derived-stats">
-          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-            Derived Attributes
-          </h3>
-          <p>Hit Points: {calculateHitPoints()}</p>
-          <p>Will power: {agent.stats?.pow}</p>
-          <p>Sanity points: {calculateSanity()}</p>
-          <p>Breaking point: {calculateBreakingPoint()}</p>
-        </div>
-      ) : (
-        ""
-      )}
+      {AreStatsFilled(agent) ? <DerivedAttributes /> : ""}
     </>
   );
 }
