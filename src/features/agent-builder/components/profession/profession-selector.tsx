@@ -25,13 +25,18 @@ export default function ProfessionSelector(props: {
       ? ProfessionFormStep.ProfessionBuilder
       : ProfessionFormStep.SelectProfession
   );
-  const [inputValues, setInputValues] = useState<{ [key: string]: string }>({});
+  const [professionalSkillValues, setProfessionalSkillValues] = useState<{
+    [key: string]: string;
+  }>({});
+  const [additionalSkillValues, setAdditionalSkillValues] = useState<{
+    [key: string]: string;
+  }>({});
 
   // UseEffect moved out of the renderStep function
   useEffect(() => {
     if (formStep !== ProfessionFormStep.ProfessionBuilder) return;
 
-    const selectedSkillsCount = Object.keys(inputValues).length;
+    const selectedSkillsCount = Object.keys(additionalSkillValues).length;
 
     // Check if the required number of skills has been selected based on the rule count
     const isProfessionFilled =
@@ -42,7 +47,7 @@ export default function ProfessionSelector(props: {
     if (isProfessionFilled !== isStepCompleted) {
       props.toggleCompletedStep(FormStep.ProfessionFilled);
     }
-  }, [formStep, inputValues, activeProfession, props]);
+  }, [formStep, additionalSkillValues, activeProfession, props]);
 
   if (!props.professions) return null;
 
@@ -62,16 +67,20 @@ export default function ProfessionSelector(props: {
   const handleCancelSelection = () => {
     setActiveProfession({} as IProfession);
     setFormStep(ProfessionFormStep.SelectProfession);
+    setProfessionalSkillValues({});
+    setAdditionalSkillValues({});
   };
 
   const setProfessionAndSkills = () => {
     const setSkills = {};
 
     // Combine professionalSkills with input values
-    activeProfession.professionalSkills.forEach((skill) => {
-      if (skill.requiresInput && inputValues[skill.name]) {
+    activeProfession.professionalSkills.forEach((skill, index) => {
+      const uniqueKey = `${skill.name}-${index}`;
+      if (skill.requiresInput && professionalSkillValues[uniqueKey]) {
         // Format the skill with the input value, e.g., "Science (Biology)"
-        setSkills[`${skill.name} (${inputValues[skill.name]})`] = skill.value;
+        setSkills[`${skill.name} (${professionalSkillValues[uniqueKey]})`] =
+          skill.value;
       } else {
         // Use the skill name directly
         setSkills[skill.name] = skill.value;
@@ -80,10 +89,12 @@ export default function ProfessionSelector(props: {
 
     // Combine additionalSkills with input values, if any
     if (activeProfession.additionalSkills) {
-      activeProfession.additionalSkills.forEach((skill) => {
-        if (skill.requiresInput && inputValues[skill.name]) {
+      activeProfession.additionalSkills.forEach((skill, index) => {
+        const uniqueKey = `additional-${index}`;
+        if (skill.requiresInput && additionalSkillValues[uniqueKey]) {
           // Format the skill with the input value, e.g., "Language (French)"
-          setSkills[`${skill.name} (${inputValues[skill.name]})`] = skill.value;
+          setSkills[`${skill.name} (${additionalSkillValues[uniqueKey]})`] =
+            skill.value;
         } else {
           // Use the skill name directly
           setSkills[skill.name] = skill.value;
@@ -100,8 +111,16 @@ export default function ProfessionSelector(props: {
     });
   };
 
-  const handleInputChange = (uniqueKey: string, value: string) => {
-    setInputValues((prevValues) => ({
+  // Separate handlers for professional and additional skill inputs
+  const handleProfessionalInputChange = (uniqueKey: string, value: string) => {
+    setProfessionalSkillValues((prevValues) => ({
+      ...prevValues,
+      [uniqueKey]: value,
+    }));
+  };
+
+  const handleAdditionalInputChange = (uniqueKey: string, value: string) => {
+    setAdditionalSkillValues((prevValues) => ({
       ...prevValues,
       [uniqueKey]: value,
     }));
@@ -115,14 +134,17 @@ export default function ProfessionSelector(props: {
       activeProfession.professionalSkills.every((skill, index) => {
         if (skill.requiresInput) {
           const uniqueKey = `${skill.name}-${index}`;
-          return inputValues[uniqueKey] && inputValues[uniqueKey].trim() !== "";
+          return (
+            professionalSkillValues[uniqueKey] &&
+            professionalSkillValues[uniqueKey].trim() !== ""
+          );
         }
         return true; // If no input is required, it's considered filled
       });
 
     // Check additionalSkills: Ensure the number of selected skills matches the required count and that all selected skills with requiresInput are filled
-    const selectedAdditionalSkills = Object.keys(inputValues).filter(
-      (key) => key.startsWith("additional-") // Identifying additional skills by their unique key prefix
+    const selectedAdditionalSkills = Object.keys(additionalSkillValues).filter(
+      (key) => key.startsWith("additional-")
     );
 
     const allAdditionalSkillsFilled =
@@ -132,7 +154,10 @@ export default function ProfessionSelector(props: {
           (_, index) => key === `additional-${index}`
         );
         if (skill?.requiresInput) {
-          return inputValues[key] && inputValues[key].trim() !== "";
+          return (
+            additionalSkillValues[key] &&
+            additionalSkillValues[key].trim() !== ""
+          );
         }
         return true;
       });
@@ -141,9 +166,7 @@ export default function ProfessionSelector(props: {
   };
 
   const handleCheckboxChange = (uniqueKey: string, isChecked: boolean) => {
-    const selectedSkillsCount = Object.keys(inputValues).filter((key) =>
-      key.startsWith("additional-")
-    ).length;
+    const selectedSkillsCount = Object.keys(additionalSkillValues).length;
     const requiredCount = activeProfession.rule?.count || 0;
 
     if (isChecked && selectedSkillsCount >= requiredCount) {
@@ -151,12 +174,12 @@ export default function ProfessionSelector(props: {
     }
 
     if (isChecked) {
-      setInputValues((prevValues) => ({
+      setAdditionalSkillValues((prevValues) => ({
         ...prevValues,
         [uniqueKey]: "", // Initialize with an empty string or some default value
       }));
     } else {
-      setInputValues((prevValues) => {
+      setAdditionalSkillValues((prevValues) => {
         const updatedValues = { ...prevValues };
         delete updatedValues[uniqueKey];
         return updatedValues;
@@ -203,9 +226,9 @@ export default function ProfessionSelector(props: {
                 {isInputRequired && (
                   <input
                     type="text"
-                    value={inputValues[uniqueKey] || ""}
+                    value={professionalSkillValues[uniqueKey] || ""}
                     onChange={(e) => {
-                      handleInputChange(uniqueKey, e.target.value);
+                      handleProfessionalInputChange(uniqueKey, e.target.value);
                     }}
                     placeholder={skill.inputLabel}
                     className="text-black"
@@ -222,14 +245,14 @@ export default function ProfessionSelector(props: {
           activeProfession.additionalSkills &&
           activeProfession.additionalSkills.length > 0
         ) {
-          const selectedSkillsCount = Object.keys(inputValues).length;
+          const selectedSkillsCount = Object.keys(additionalSkillValues).length;
           const requiredCount = activeProfession.rule?.count || 0;
 
           additionalSkills = activeProfession.additionalSkills.map(
             (skill, index) => {
               // Create a unique key using the skill name and index
               const uniqueKey = `additional-${index}`;
-              const isChecked = inputValues[uniqueKey] !== undefined;
+              const isChecked = additionalSkillValues[uniqueKey] !== undefined;
               const isInputRequired = skill.requiresInput;
 
               return (
@@ -250,9 +273,9 @@ export default function ProfessionSelector(props: {
                   {isInputRequired && (
                     <input
                       type="text"
-                      value={inputValues[uniqueKey] || ""}
+                      value={additionalSkillValues[uniqueKey] || ""}
                       onChange={(e) => {
-                        handleInputChange(uniqueKey, e.target.value);
+                        handleAdditionalInputChange(uniqueKey, e.target.value);
                       }}
                       placeholder={skill.inputLabel}
                       disabled={!isChecked}
