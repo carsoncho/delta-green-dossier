@@ -8,4 +8,5 @@ export type Skill = {
   value: number;
   requiresInput: boolean;
   inputLabel: string;
+  userInput?: string;
 };

@@ -20,7 +20,7 @@ export const allSkills = {
     description:
       "The study of ancient and historic human material remains and environmental data.",
   },
-  "Art (Type)": {
+  Art: {
     base: 0,
     description:
       "Making and repairing sophisticated tools and structures. Each Craft type is a separate skill: Architect, Carpenter, Electrician, Gunsmith, Locksmith, Mechanic, Microelectronics, Plumber, etc.",
@@ -45,7 +45,7 @@ export const allSkills = {
     description:
       "The study of computers and computational systems. Use it to develop software, break encryption, hack systems, or protect against intrusions.",
   },
-  "Craft (Type)": {
+  Craft: {
     base: 0,
     description:
       "Making and repairing sophisticated tools and structures. Each Craft type is a separate skill: Architect, Carpenter, Electrician, Gunsmith, Locksmith, Mechanic, Microelectronics, Plumber, etc.",
@@ -85,7 +85,7 @@ export const allSkills = {
     description:
       "Basic medical treatment. Use it to stabilize a patient, treat minor injuries, or provide initial care before professional medical help arrives.",
   },
-  "Foreign Language (Type)": {
+  "Foreign Language": {
     base: 0,
     description:
       "The ability to speak, read, and write in a language other than your Agent’s native language.",
@@ -130,7 +130,7 @@ export const allSkills = {
     description:
       "Combat with hand-to-hand weapons. Use it to fight with knives, clubs, and other melee weapons.",
   },
-  "Military Science (Type)": {
+  "Military Science": {
     base: 0,
     description:
       "Knowledge of military culture, techniques, and regulations. Use it to identify threats in a battlefield, find accurate ranges, recognize weaknesses in a fortification, deduce the training level of a soldier or unit, reconstruct the events of a battle, or deploy forces advantageously in combat. Each type of Military Science is its own skill. The usual types are Land, Air, and Sea.",
@@ -155,7 +155,7 @@ export const allSkills = {
     description:
       "The science of preparing and dispensing drugs. Use it to identify medications, understand their effects, and prepare pharmaceutical compounds.",
   },
-  "Pilot (Type)": {
+  Pilot: {
     base: 0,
     description:
       "Piloting, navigating, and captaining waterborne, airborne, or aerospace vehicles. Use it to keep a vessel safe in a crisis, such as through a storm or in a dangerous pursuit. Each vessel type is a separate skill: Airplane, Drone, Helicopter, Small Boat, Ship, Space Shuttle, etc. At the Handler’s discretion, skill with one craft may allow piloting a related kind of craft.",
@@ -170,7 +170,7 @@ export const allSkills = {
     description:
       "The ability to ride animals, such as horses. Use it to control and care for the animal during travel or in dangerous situations.",
   },
-  "Science (Type)": {
+  Science: {
     base: 0,
     description:
       "The study of the natural world through observation and experiment. Each type of Science is its own skill: Biology, Chemistry, Physics, etc.",

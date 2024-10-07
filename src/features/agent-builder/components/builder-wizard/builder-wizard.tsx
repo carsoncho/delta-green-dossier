@@ -3,7 +3,7 @@ import { IAgent } from "@/types/agent";
 import { Button } from "@/app/components/ui/button/button";
 import { Input } from "@/app/components/ui/input";
 import BuilderHeader from "../builder-header/builder-header";
-import { AgentName } from "@/utils/agent-utils";
+import { AgentName, AreStatsFilled } from "@/utils/agent-utils";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useAgentContext } from "@/context/agent-context";
 import StatsBuilder from "../stats-builder/stats-builder";
@@ -11,6 +11,7 @@ import { FiSave } from "react-icons/fi";
 import { toast } from "@/hooks/use-toast";
 import ProfessionSelector from "../profession/profession-selector";
 import { IProfession } from "@/types/professions";
+import { useUpdateAgent } from "@/features/agents/hooks/use-update-agent";
 /**
  * Enum for tracking all the required steps being completed on the review "step"
  */
@@ -39,9 +40,20 @@ export default function BuilderWizard(props: {
   const [formStep, setFormStep] = useState(1);
   const { agent, setAgent } = useAgentContext();
 
-  useEffect(() => {
-    setAgent(props.agent);
-  }, [props.agent, setAgent]);
+  const { updateAgentAction, isLoading } = useUpdateAgent({
+    onSuccess: (agent) => {
+      console.log("onSuccess from updateAgentAction");
+      toast({
+        title: "Agent Saved",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+      });
+    },
+  });
 
   // @todo: update this to be completed based on what's saved in the agent.
   const [completedSteps, setCompletedSteps] = useState({
@@ -57,6 +69,27 @@ export default function BuilderWizard(props: {
       [step]: !prevState[step],
     }));
   };
+
+  useEffect(() => {
+    setAgent(props.agent);
+
+    // @todo: adjust this logic once we have bonds and personal details implemented
+    setCompletedSteps({
+      [FormStep.StatsFilled]: AreStatsFilled(props.agent),
+      [FormStep.ProfessionFilled]: !!props.agent?.profession,
+      [FormStep.BondsFilled]: false,
+      [FormStep.PersonalDetailsFilled]: false,
+    });
+
+    // Set the correct initial formStep based on agent
+    if (!AreStatsFilled(props.agent)) {
+      setFormStep(1);
+    } else if (!props.agent?.profession) {
+      setFormStep(2);
+    } else if (!props.agent?.bonds) {
+      setFormStep(3);
+    }
+  }, [props.agent, setAgent]);
 
   /**
    * const to track if the agent has changed at all
@@ -94,48 +127,35 @@ export default function BuilderWizard(props: {
    *
    */
   const handleSave = () => {
-    saveAgent({ agent: agent })
-      .then(() => {
-        toast({
-          title: "Character Saved",
-        });
-      })
-      .catch((error) => {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to save character",
-          variant: "destructive",
-        });
-      });
+    console.log("handleSave");
+    updateAgentAction(agent);
   };
 
-  /**
-   *
-   * @param props
-   */
-  const saveAgent = async (props: IAgentPutParams) => {
-    if (!agent._id) {
-      console.error("cannot have agent without id");
-    }
+  // const saveAgent = async (agent: IAgent) => {
+  //   if (!agent._id) {
+  //     console.error("cannot have agent without id");
+  //   }
 
-    const id = agent._id;
-    const res = await fetch(`/api/agents/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(agent),
-    });
+  //   const id = agent._id;
+  //   const res = await fetch(`/api/agents/${id}`, {
+  //     method: "PUT",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(agent),
+  //   });
 
-    if (!res.ok) {
-      // Handle error here, e.g., show an alert or a toast notification
-      console.error("Failed to save agent data");
-    } else {
-      const updatedAgent = await res.json();
-      // You can also update the state here if needed
-      setAgent(updatedAgent.data);
-    }
-  };
+  //   console.log("saving agent");
+  //   if (!res.ok) {
+  //     // Handle error here, e.g., show an alert or a toast notification
+  //     console.error("Failed to save agent data");
+  //   } else {
+  //     const updatedAgent = await res.json();
+  //     console.log("updated Agent", updatedAgent);
+  //     // You can also update the state here if needed
+  //     setAgent(updatedAgent.data);
+  //   }
+  // };
 
   const renderStep = (agent: IAgent) => {
     switch (formStep) {
@@ -144,7 +164,7 @@ export default function BuilderWizard(props: {
           <div className="">
             <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
               Welcome {AgentName(agent)}
-              <Button onClick={handleSave} disabled={agent === originalAgent}>
+              <Button onClick={handleSave} disabled={isLoading}>
                 <FiSave />
               </Button>
             </h2>
@@ -179,7 +199,7 @@ export default function BuilderWizard(props: {
           <div>
             <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
               Select your profession {AgentName(agent)}
-              <Button onClick={handleSave} disabled={agent === originalAgent}>
+              <Button onClick={handleSave} disabled={isLoading}>
                 <FiSave />
               </Button>
             </h2>

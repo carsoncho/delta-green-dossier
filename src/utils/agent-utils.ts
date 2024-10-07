@@ -1,4 +1,5 @@
 import { FullName, IAgent, IStats } from "@/types/agent";
+import { Skill } from "@/types/skills";
 
 const familyNames = [
   "Li",
@@ -269,4 +270,18 @@ export function GetTotalPoints(agent: IAgent) {
   return Object.values(agent.stats).reduce((acc, value) => {
     return acc + (value || 0); // Add value if it exists, otherwise add 0
   }, 0);
+}
+
+/**
+ * Helper to get a skill's name. Should only be used after knowing the agent has completed the profession step of the builder.
+ *
+ * @param skill The skill to get the name for.
+ * @returns The skill's name as a string.
+ */
+export function GetSkillName(skill: Skill) {
+  if (skill.requiresInput) {
+    return `${skill.name} (${skill.userInput})`;
+  }
+
+  return `${skill.name}`;
 }

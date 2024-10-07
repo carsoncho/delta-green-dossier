@@ -30,7 +30,12 @@ export default function BuilderHeader(props: {
           onClick={() => props.setFormStep(2)}
           className={props.formStep === 2 ? styles.active : ""}
         >
-          Profession<span className="text-red-500">*</span>
+          Profession
+          {props.completedSteps[FormStep.ProfessionFilled] === false ? (
+            <span className="text-red-500">*</span>
+          ) : (
+            ""
+          )}
         </li>
         <li
           onClick={() => props.setFormStep(3)}

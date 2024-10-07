@@ -1,4 +1,3 @@
-import { ObjectId } from "mongoose";
 import { Skill } from "./skills";
 
 export interface Rule {
@@ -8,7 +7,7 @@ export interface Rule {
 }
 
 export interface IProfession {
-  _id: string | ObjectId;
+  _id: string;
   name: string;
   description: string;
   recommendedStats: string;

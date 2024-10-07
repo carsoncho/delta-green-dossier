@@ -4,6 +4,21 @@ import { IAgent } from "@/types/agent";
 import { IProfession } from "@/types/professions";
 import { FlattenMaps } from "mongoose";
 
+const extractProfession = (agent: FlattenMaps<AgentDocument>) => {
+  if (agent?.profession) {
+    return {
+      name: agent.profession.name,
+      description: agent.profession.description,
+      bonds: agent.profession.bonds,
+      recommendedStats: agent.profession.recommendedStats,
+      professionalSkills: agent.profession.professionalSkills,
+      additionalSkills: agent.profession?.additionalSkills,
+    };
+  }
+
+  return null;
+};
+
 export const transformDocumentToAgent = (
   doc: FlattenMaps<AgentDocument>
 ): IAgent => {
@@ -32,6 +47,7 @@ export const transformDocumentToAgent = (
     personalNotes: doc?.personalNotes,
     homeDevelopments: doc?.homeDevelopments,
     statGenerationMode: doc?.statGenerationMode,
+    skills: doc?.skills,
   };
 };
 
@@ -39,7 +55,7 @@ export const transformDocumentToProfession = (
   doc: FlattenMaps<IProfessionDocument>
 ): IProfession => {
   return {
-    _id: doc.id,
+    _id: doc._id.toString(),
     name: doc.name,
     description: doc.description,
     recommendedStats: doc.recommendedStats,

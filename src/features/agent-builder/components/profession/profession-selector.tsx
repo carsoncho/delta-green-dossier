@@ -1,3 +1,5 @@
+"use client";
+
 import { useAgentContext } from "@/context/agent-context";
 import { IProfession } from "@/types/professions";
 import { useEffect, useState } from "react";
@@ -6,10 +8,15 @@ import ProfessionSkillInput from "./profession-skill-select";
 import { Button } from "@/app/components/ui/button/button";
 import { Accordion } from "@/app/components/ui/accordion";
 import { CompletedSteps, FormStep } from "../builder-wizard/builder-wizard";
+import { MdCancel } from "react-icons/md";
+import { Skill } from "@/types/skills";
+import { GetSkillName } from "@/utils/agent-utils";
+import { IAgent } from "@/types/agent";
 
 enum ProfessionFormStep {
-  SelectProfession = "SELECT_PROFESSION",
-  ProfessionBuilder = "PROFESSION_BUILDER",
+  SelectProfession,
+  ProfessionBuilder,
+  Review,
 }
 
 export default function ProfessionSelector(props: {
@@ -21,22 +28,33 @@ export default function ProfessionSelector(props: {
   const [activeProfession, setActiveProfession] = useState({} as IProfession);
   const [searchFilter, setSearchFilter] = useState("");
   const [formStep, setFormStep] = useState<ProfessionFormStep>(
-    activeProfession._id
-      ? ProfessionFormStep.ProfessionBuilder
-      : ProfessionFormStep.SelectProfession
+    ProfessionFormStep.SelectProfession
   );
   const [professionalSkillValues, setProfessionalSkillValues] = useState<{
     [key: string]: string;
   }>({});
+  // @todo: Refactor these two into a single list of skills
   const [additionalSkillValues, setAdditionalSkillValues] = useState<{
     [key: string]: string;
   }>({});
+  const [selectedAdditionalSkills, setSelectedAdditionalSkills] = useState<
+    Set<string>
+  >(new Set());
 
-  // UseEffect moved out of the renderStep function
+  useEffect(() => {
+    // If the agent has a profession, set it as the active profession
+    if (agent.profession) {
+      setActiveProfession(agent.profession);
+      setFormStep(ProfessionFormStep.Review);
+    }
+
+    // @todo: set skills based off agent's if aleady found
+  }, [agent]);
+
   useEffect(() => {
     if (formStep !== ProfessionFormStep.ProfessionBuilder) return;
 
-    const selectedSkillsCount = Object.keys(additionalSkillValues).length;
+    const selectedSkillsCount = selectedAdditionalSkills.size;
 
     // Check if the required number of skills has been selected based on the rule count
     const isProfessionFilled =
@@ -47,7 +65,7 @@ export default function ProfessionSelector(props: {
     if (isProfessionFilled !== isStepCompleted) {
       props.toggleCompletedStep(FormStep.ProfessionFilled);
     }
-  }, [formStep, additionalSkillValues, activeProfession, props]);
+  }, [formStep, selectedAdditionalSkills, activeProfession, props, agent]);
 
   if (!props.professions) return null;
 
@@ -69,46 +87,60 @@ export default function ProfessionSelector(props: {
     setFormStep(ProfessionFormStep.SelectProfession);
     setProfessionalSkillValues({});
     setAdditionalSkillValues({});
+    setSelectedAdditionalSkills(new Set());
   };
 
   const setProfessionAndSkills = () => {
-    const setSkills = {};
+    const skillsArray = [] as Skill[];
 
     // Combine professionalSkills with input values
     activeProfession.professionalSkills.forEach((skill, index) => {
       const uniqueKey = `${skill.name}-${index}`;
       if (skill.requiresInput && professionalSkillValues[uniqueKey]) {
-        // Format the skill with the input value, e.g., "Science (Biology)"
-        setSkills[`${skill.name} (${professionalSkillValues[uniqueKey]})`] =
-          skill.value;
+        // Add skill object to the array
+        skillsArray.push({
+          ...skill,
+          userInput: professionalSkillValues[uniqueKey],
+        });
       } else {
         // Use the skill name directly
-        setSkills[skill.name] = skill.value;
+        skillsArray.push({
+          ...skill,
+        });
       }
     });
 
-    // Combine additionalSkills with input values, if any
-    if (activeProfession.additionalSkills) {
-      activeProfession.additionalSkills.forEach((skill, index) => {
-        const uniqueKey = `additional-${index}`;
+    // Only add the selected additionalSkills to the skillsArray
+    selectedAdditionalSkills.forEach((uniqueKey) => {
+      const index = parseInt(uniqueKey.split("-")[1], 10);
+      const skill = activeProfession.additionalSkills[index];
+      if (skill) {
         if (skill.requiresInput && additionalSkillValues[uniqueKey]) {
-          // Format the skill with the input value, e.g., "Language (French)"
-          setSkills[`${skill.name} (${additionalSkillValues[uniqueKey]})`] =
-            skill.value;
+          skillsArray.push({
+            ...skill,
+            userInput: additionalSkillValues[uniqueKey],
+          });
         } else {
-          // Use the skill name directly
-          setSkills[skill.name] = skill.value;
+          skillsArray.push({
+            ...skill,
+          });
         }
-      });
-    }
+      }
+    });
 
-    // Update the agent's skills
+    console.log("skillsArray", skillsArray);
+
+    // Update the agent's skills and profession
     setAgent((prevAgent) => {
+      console.log("setting agent");
       return {
         ...prevAgent,
-        skills: setSkills,
+        skills: skillsArray,
+        profession: activeProfession,
       };
     });
+
+    setFormStep(ProfessionFormStep.Review);
   };
 
   // Separate handlers for professional and additional skill inputs
@@ -143,20 +175,15 @@ export default function ProfessionSelector(props: {
       });
 
     // Check additionalSkills: Ensure the number of selected skills matches the required count and that all selected skills with requiresInput are filled
-    const selectedAdditionalSkills = Object.keys(additionalSkillValues).filter(
-      (key) => key.startsWith("additional-")
-    );
-
     const allAdditionalSkillsFilled =
-      selectedAdditionalSkills.length === requiredCount &&
-      selectedAdditionalSkills.every((key) => {
-        const skill = activeProfession.additionalSkills.find(
-          (_, index) => key === `additional-${index}`
-        );
+      selectedAdditionalSkills.size === requiredCount &&
+      Array.from(selectedAdditionalSkills).every((uniqueKey) => {
+        const index = parseInt(uniqueKey.split("-")[1], 10);
+        const skill = activeProfession.additionalSkills[index];
         if (skill?.requiresInput) {
           return (
-            additionalSkillValues[key] &&
-            additionalSkillValues[key].trim() !== ""
+            additionalSkillValues[uniqueKey] &&
+            additionalSkillValues[uniqueKey].trim() !== ""
           );
         }
         return true;
@@ -166,32 +193,52 @@ export default function ProfessionSelector(props: {
   };
 
   const handleCheckboxChange = (uniqueKey: string, isChecked: boolean) => {
-    const selectedSkillsCount = Object.keys(additionalSkillValues).length;
+    const selectedSkillsCount = selectedAdditionalSkills.size;
     const requiredCount = activeProfession.rule?.count || 0;
 
     if (isChecked && selectedSkillsCount >= requiredCount) {
       return;
     }
 
-    if (isChecked) {
-      setAdditionalSkillValues((prevValues) => ({
-        ...prevValues,
-        [uniqueKey]: "", // Initialize with an empty string or some default value
-      }));
-    } else {
-      setAdditionalSkillValues((prevValues) => {
-        const updatedValues = { ...prevValues };
-        delete updatedValues[uniqueKey];
-        return updatedValues;
-      });
-    }
+    setSelectedAdditionalSkills((prevSelectedSkills) => {
+      const updatedSkills = new Set(prevSelectedSkills);
+      if (isChecked) {
+        updatedSkills.add(uniqueKey);
+        setAdditionalSkillValues((prevValues) => ({
+          ...prevValues,
+          [uniqueKey]: "", // Initialize with an empty string or some default value
+        }));
+      } else {
+        updatedSkills.delete(uniqueKey);
+        setAdditionalSkillValues((prevValues) => {
+          const updatedValues = { ...prevValues };
+          delete updatedValues[uniqueKey];
+          return updatedValues;
+        });
+      }
+      return updatedSkills;
+    });
   };
+
+  const getSkillsList = (agent: IAgent) => {
+    return agent.skills?.map((skill, index) => {
+      const name = GetSkillName(skill);
+      return (
+        <li key={index}>
+          {name}: {skill.value}%
+        </li>
+      );
+    });
+    return null;
+  };
+
+  if (!agent) return null;
 
   const renderStep = (step: ProfessionFormStep) => {
     switch (step) {
       case ProfessionFormStep.SelectProfession:
         return (
-          <>
+          <div>
             <input
               type="text"
               value={searchFilter}
@@ -210,12 +257,11 @@ export default function ProfessionSelector(props: {
                 />
               ))}
             </Accordion>
-          </>
+          </div>
         );
       case ProfessionFormStep.ProfessionBuilder:
         const skills = activeProfession.professionalSkills.map(
           (skill, index) => {
-            // Create a unique key using the skill name and index
             const uniqueKey = `${skill.name}-${index}`;
             const isInputRequired = skill.requiresInput;
 
@@ -245,14 +291,13 @@ export default function ProfessionSelector(props: {
           activeProfession.additionalSkills &&
           activeProfession.additionalSkills.length > 0
         ) {
-          const selectedSkillsCount = Object.keys(additionalSkillValues).length;
+          const selectedSkillsCount = selectedAdditionalSkills.size;
           const requiredCount = activeProfession.rule?.count || 0;
 
           additionalSkills = activeProfession.additionalSkills.map(
             (skill, index) => {
-              // Create a unique key using the skill name and index
               const uniqueKey = `additional-${index}`;
-              const isChecked = additionalSkillValues[uniqueKey] !== undefined;
+              const isChecked = selectedAdditionalSkills.has(uniqueKey);
               const isInputRequired = skill.requiresInput;
 
               return (
@@ -294,7 +339,9 @@ export default function ProfessionSelector(props: {
             <h1 className="font-bold text-xl">
               Active Profession: {activeProfession.name}
             </h1>
-            <Button onClick={handleCancelSelection}>Cancel selection</Button>
+            <Button onClick={handleCancelSelection}>
+              <MdCancel className="mr-2 h-4 w-4" /> Cancel
+            </Button>
             <hr />
             <div>
               <p>Base Skills:</p>
@@ -317,6 +364,25 @@ export default function ProfessionSelector(props: {
             >
               Set Profession
             </Button>
+          </div>
+        );
+      case ProfessionFormStep.BonusSkills:
+      // @todo: return interface for selecting from all skills.
+      // The user is allowed to increase a skill by 20 points 8 times.
+      // No skill can be increased above an 80
+      // A user can optionally increase a skill multiple times.
+      case ProfessionFormStep.Review:
+        return (
+          <div>
+            <h1 className="font-bold text-xl">
+              Review Profession: {activeProfession.name}
+            </h1>
+
+            <Button onClick={handleCancelSelection}>
+              <MdCancel className="mr-2 h-4 w-4" /> Cancel
+            </Button>
+            <hr />
+            <ul>{getSkillsList(agent)}</ul>
           </div>
         );
       default:

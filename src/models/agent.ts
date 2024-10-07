@@ -14,18 +14,22 @@ const RuleSchema = new Schema({
   },
 });
 
-const SkillSchema = new Schema({
-  name: { type: String, required: true },
-  value: { type: Number, required: true },
-  requiresInput: { type: Boolean, required: true },
-  inputLabel: { type: String },
-});
+const SkillSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    value: { type: Number, required: true },
+    requiresInput: { type: Boolean, required: true },
+    inputLabel: { type: String },
+    userInput: { type: String },
+  },
+  { _id: false }
+);
 
 export interface IProfessionDocument extends IProfession, Document {
   _id: ObjectId;
 }
 
-const professionSchema: Schema<IProfessionDocument> = new Schema({
+const ProfessionSchema: Schema<IProfessionDocument> = new Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
   recommendedStats: { type: String, required: true },
@@ -39,7 +43,7 @@ export const Profession: Model<IProfessionDocument> =
   mongoose.models.Profession ||
   mongoose.model<IProfessionDocument>(
     "Profession",
-    professionSchema,
+    ProfessionSchema,
     "Professions"
   );
 
@@ -78,17 +82,14 @@ const agentSchema: Schema<AgentDocument> = new Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Disorder" }],
       default: null,
     },
-    profession: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Profession",
-      default: null,
-    },
+    profession: { type: ProfessionSchema },
     birthDate: { type: Date, default: null },
     education: { type: String, default: null },
     gender: { type: String, default: null },
     genderOther: { type: String },
     physicalDescription: { type: String },
     motivations: { type: [String] },
+    skills: { type: [SkillSchema] },
     stats: {
       str: { type: Number, min: 3, max: 18 },
       con: { type: Number, min: 3, max: 18 },
