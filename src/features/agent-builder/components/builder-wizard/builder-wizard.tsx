@@ -9,9 +9,9 @@ import { useAgentContext } from "@/context/agent-context";
 import StatsBuilder from "../stats-builder/stats-builder";
 import { FiSave } from "react-icons/fi";
 import { toast } from "@/hooks/use-toast";
-import ProfessionSelector from "../profession/profession-selector";
-import { IProfession } from "@/types/professions";
+import { Profession } from "@/types/profession";
 import { useUpdateAgent } from "@/features/agents/hooks/use-update-agent";
+import ProfessionBuilder from "../profession/profession-builder";
 /**
  * Enum for tracking all the required steps being completed on the review "step"
  */
@@ -35,7 +35,7 @@ interface IAgentPutParams {
 
 export default function BuilderWizard(props: {
   agent: IAgent;
-  professions: IProfession[];
+  professions: Profession[];
 }) {
   const [formStep, setFormStep] = useState(1);
   const { agent, setAgent } = useAgentContext();
@@ -85,6 +85,7 @@ export default function BuilderWizard(props: {
     if (!AreStatsFilled(props.agent)) {
       setFormStep(1);
     } else if (!props.agent?.profession) {
+      // @todo: Add additional logic above beause the profession needs additional criteria
       setFormStep(2);
     } else if (!props.agent?.bonds) {
       setFormStep(3);
@@ -130,32 +131,6 @@ export default function BuilderWizard(props: {
     console.log("handleSave");
     updateAgentAction(agent);
   };
-
-  // const saveAgent = async (agent: IAgent) => {
-  //   if (!agent._id) {
-  //     console.error("cannot have agent without id");
-  //   }
-
-  //   const id = agent._id;
-  //   const res = await fetch(`/api/agents/${id}`, {
-  //     method: "PUT",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify(agent),
-  //   });
-
-  //   console.log("saving agent");
-  //   if (!res.ok) {
-  //     // Handle error here, e.g., show an alert or a toast notification
-  //     console.error("Failed to save agent data");
-  //   } else {
-  //     const updatedAgent = await res.json();
-  //     console.log("updated Agent", updatedAgent);
-  //     // You can also update the state here if needed
-  //     setAgent(updatedAgent.data);
-  //   }
-  // };
 
   const renderStep = (agent: IAgent) => {
     switch (formStep) {
@@ -203,7 +178,7 @@ export default function BuilderWizard(props: {
                 <FiSave />
               </Button>
             </h2>
-            <ProfessionSelector
+            <ProfessionBuilder
               professions={props.professions}
               toggleCompletedStep={toggleCompletedStep}
               completedSteps={completedSteps}

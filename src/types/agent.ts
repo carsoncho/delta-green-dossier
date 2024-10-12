@@ -1,6 +1,6 @@
-import { Date, ObjectId } from "mongoose";
-import { IProfession } from "./professions";
-import { Skill } from "./skills";
+import { Date } from "mongoose";
+import { Profession } from "./profession";
+import { PlayerSkill } from "./skills";
 
 export interface IStats {
   str?: number;
@@ -27,13 +27,13 @@ export interface FullName {
   familyName: string;
 }
 
+// Represents the "mode" in which the players allocated their stats
 export type Mode = "manual" | "point_buy" | "";
 
 export interface IAgent {
-  _id: string;
   givenName: string;
   familyName: string;
-  profession?: IProfession;
+  profession?: Profession;
   employer?: string;
   nationality?: string;
   gender?: "M | F";
@@ -52,7 +52,7 @@ export interface IAgent {
   weapons?: string[];
   personalNotes?: string;
   homeDevelopments?: string;
-  skills?: Skill[];
+  skills?: PlayerSkill[];
   hasCompletedCreation: boolean;
   statGenerationMode?: Mode;
 }

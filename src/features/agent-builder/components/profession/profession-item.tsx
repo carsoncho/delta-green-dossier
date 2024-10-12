@@ -1,5 +1,5 @@
 "use client";
-import { IProfession } from "@/types/professions";
+import { Profession } from "@/types/professions";
 import { Button } from "@/components/ui/button/button";
 import {
   AccordionContent,
@@ -8,9 +8,9 @@ import {
 } from "@/app/components/ui/accordion";
 
 export default function ProfessionItem(props: {
-  profession: IProfession;
+  profession: Profession;
   className: string;
-  setActiveProfession: (profession: IProfession) => void;
+  setActiveProfession: (profession: Profession) => void;
 }) {
   const skillsList = Object.entries(props.profession.professionalSkills).map(
     ([index, skill]) => (

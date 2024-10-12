@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Drawer from "react-modern-drawer";
 import "react-modern-drawer/dist/index.css";
-import { allSkills } from "data/skills";
+import { baseSkills } from "data/skills";
 import GroupHeader from "./group-header";
 import AgentGroupWrapper from "./agent-group-wrapper";
 import { Skill } from "@/types/skills";

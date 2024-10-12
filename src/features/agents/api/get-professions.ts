@@ -1,23 +1,37 @@
-"use server";
-import { connectToMongoDB } from "@/lib/mongodb";
-import { cache } from "react";
-import { IProfession } from "@/types/professions";
-import { Profession } from "@/models/profession";
-import { transformDocumentToProfession } from "@/utils/data-transformers";
+import { Profession } from "@/types/profession";
+import { Skill, ProfessionSkill } from "@/types/skills";
+import { allProfessions } from "data/professions";
+import { baseSkills } from "data/skills";
 
-/**
- * Retrieves all Professions.
- *
- * @returns
- *   The array of all Professions.
- */
-const getProfessionsFromDB = async (): Promise<IProfession[]> => {
-  await connectToMongoDB();
-  const professions = await Profession.find().lean();
+const mergeSkills = (skills: ProfessionSkill[]): Skill[] => {
+  return skills.map((skill) => {
+    let baseSkill = skill?.baseSkill
+      ? baseSkills.find((base) => base.name === skill.baseSkill)
+      : baseSkills.find((base) => base.name === skill.name);
 
-  return professions.map((profession) => {
-    return transformDocumentToProfession(profession);
+    if (!baseSkill) {
+      throw new Error(`Base skill not found for ${skill.name}`);
+    }
+
+    return {
+      ...baseSkill,
+      ...skill,
+      requiresInput: skill.baseSkill ? false : baseSkill.requiresInput,
+    };
   });
 };
 
-export const getProfessions = cache(getProfessionsFromDB);
+export const getProfessions = (): Profession[] => {
+  return allProfessions.map((profession) => {
+    const mergedProfessionalSkills = mergeSkills(profession.professionalSkills);
+    const mergedAdditionalSkills = profession.additionalSkills
+      ? mergeSkills(profession.additionalSkills)
+      : undefined;
+
+    return {
+      ...profession,
+      professionalSkills: mergedProfessionalSkills,
+      additionalSkills: mergedAdditionalSkills,
+    };
+  });
+};
